@@ -3,7 +3,6 @@ package com.brunata.meteringdemo.api;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import com.brunata.meteringdemo.common.ValidationException;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
