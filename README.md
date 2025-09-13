@@ -31,31 +31,45 @@ Dokumentation
 - Migrations: ausschließlich via Flyway (`V*_*.sql`), keine nachträglichen Änderungen angewandter Migrationen
 - Observability: Actuator (Health, Metrics)
 
-### Architekturdiagramm
+### Architekturdiagramm (einfaches Schema)
 
-```mermaid
-graph LR
-  subgraph App[app (Spring Boot Runtime)]
-    A[api\nREST Controller] --> B[services\nBusiness Logic]
-    B --> C[persistence\nSpring Data Repositories]
-    B -.uses DTO/Validation.-> A
-    A -.errors.-> E[common\nApiError, Exception Handling]
-    B -.errors.-> E
-    B -.uses entities.-> D[domain\nJPA Entities]
-    C -.maps entities.-> D
-  end
+```
+          Clients (Swagger UI, cURL)
+                    |
+                    v
+        +-------------------------+
+        | api (REST Controller)   |  <— OpenAPI
+        +-----------+-------------+
+                    |
+                    v
+        +-------------------------+
+        | services (Business)     |  — Validierung, Transaktionen,
+        |                         |    Fehler (ValidationException)
+        +-----------+-------------+
+                    |
+                    v
+        +-------------------------+          +----------------------+
+        | persistence (Repos)     |  JPA     | PostgreSQL 16        |
+        | Spring Data JPA         +<-------->+ (Flyway Schema)      |
+        +-----------+-------------+          +----------------------+
+                    |
+                    v
+        +-------------------------+
+        | domain (Entities)       |
+        +-------------------------+
 
-  C --> DB[(PostgreSQL)]
+        +-------------------------+          +----------------------+
+        | common (ApiError etc.)  |<—— Fehler-Mapping (ProblemDetail)
+        +-------------------------+
 
-  %% External integrations (mocked)
-  B --> WC[WebClient]
-  WC --> J[Jira]
-  WC --> ERP[ERP]
+        +-------------------------+          +----------------------+
+        | app (Runtime)           |———→ Flyway Migrationen
+        | Spring Boot + Actuator  |———→ Health/Metrics
+        +-------------------------+          +----------------------+
 
-  %% Tooling inside app
-  App --> Flyway[Flyway Migrations]
-  App --> Actuator[Actuator Health/Metrics]
-  A <-- OpenAPI --> Swagger[Swagger UI]
+        +-------------------------+          +----------------------+
+        | WebClient (Integr.)     |———→ Jira/ERP (Mock)
+        +-------------------------+          +----------------------+
 ```
 
 ### Architekturmodell: Modularer Monolith (Ready‑to‑Split)
