@@ -54,6 +54,7 @@ Hinweise zur Blueprint‑Konfiguration (Docker Runtime)
 - Flyway Migrations: Läuft automatisch beim Start. Bei Problemen Logs prüfen („flyway“).
 - Langsame Kaltstarts: Free‑Plan skaliert nach Inaktivität auf 0; erster Request dauert länger.
 - Integration‑Calls schlagen fehl: Setze `INTEGRATION_ENABLED=false` oder konfiguriere `INTEGRATION_JIRA_BASE_URL`/`INTEGRATION_ERP_BASE_URL` passend.
+ - Fehler „no main manifest attribute, in /app/app.jar“: Stelle sicher, dass beim Docker‑Build `spring-boot:repackage` ausgeführt wird (im Repo‑Dockerfile bereits enthalten). Alternativ lokal prüfen: `mvn -pl app -am package spring-boot:repackage`.
 
 ## CI/CD‑Hinweis
 - AutoDeploy ist in `render.yaml` aktiviert. Jeder Push auf `main` triggert neuen Build/Deploy.
