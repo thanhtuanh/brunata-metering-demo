@@ -174,7 +174,37 @@ curl -X POST "https://brunata-metering-demo.onrender.com/api/billing/run?contrac
 - Java Textblocks in JPQL: nach `"""` muss eine neue Zeile folgen
 - Swagger UI: Pfad ist `/swagger-ui/index.html`
 
-## Roadmap
-- ERP/Jira‑Sync (Mock) via WebClient + Scheduler
-- Security (Keycloak/OIDC), Rollen & Endpoint‑Absicherung
-- Integrationstests (Testcontainers Postgres), Metriken (Prometheus/Grafana)
+## Known Limits (MVP)
+- Auth/RBAC vereinfacht: Demo-User/Basic; kein Keycloak/JWT-Rollenmodell.
+- Billing vereinfacht: lineares Tarifmodell; keine Staffel-/Zeitfensterpreise.
+- Idempotenz fehlt: POST /readings kann bei Retries doppelt erzeugen.
+- Rate Limiting / Throttling fehlt: kein Schutz gegen Burst-Loads.
+- Multi-Tenancy/Scopes: (noch) nicht mandantenfähig.
+- Datenvalidierung/basic: Plausibilitäten einfach; kein Schema-Level für Einheiten/Konversion.
+- Pagination/Filter: rudimentär (page,size); komplexe Filter (by device/time) nur Basis.
+- Tests: Fokus auf Happy Path + wenige Fehlerfälle; Last-/Contract-Tests fehlen.
+- Observability: Metriken vorhanden, aber keine fertigen Dashboards/Alerts.
+- SLOs/SLIs: nicht definiert; kein Error Budget/Availability-Ziel.
+
+## Next Steps (Roadmap)
+- Security/RBAC: Keycloak + JWT, Rollen (viewer/ops/admin), Swagger-SecuritySchemes.
+- API-Versionierung: `/api/v1/...`; Backward-Compatibility Leitlinien.
+- Idempotenz: Idempotency-Key für Write-APIs, 409/200 Semantik.
+- Rate Limiting: Token Bucket/Redis, 429-Handling + Retry-After.
+- Billing-Engine: Tarifzonen, Staffelpreise, Zeitfenster, Rundungsregeln, Audit-Log.
+- Readings-Ingest @Scale: Bulk-Endpoints, asynchron (Kafka/Queue), DLQ.
+- Validierung: Bean Validation + domänenspez. Plausibilität (Zeitraum, Einheit).
+- Query/Reporting: erweiterte Filter (deviceId, range), Sortierung, Export.
+- Tests: Integration (Fehlerpfade), Contract (OpenAPI), e2e (Postman), Performance (Gatling/JMH).
+- Observability+: Grafana-Dashboards, Alerting (latency, 5xx, DB-Errors), Trace-IDs in Logs.
+- DB & Performance: Indizes (device_id,timestamp), Partitionierung, Caching (Caffeine/Redis).
+- Deploy: Blue/Green/Rolling, Migrations-Checks in CI/CD.
+- Compliance: Audit-Events, Lösch-/Anonymisierungsroutinen, DSGVO-Hinweise im README.
+- DX: Postman-Collection, Beispieldaten, Makefile (build/run), Status-Badges.
+
+### Demo-Check (vor jedem Termin, 60 Sek.)
+1. `GET /actuator/health` → UP
+2. `GET /v3/api-docs` (lädt flott)
+3. Swagger öffnen → `POST /api/readings` (Demo-Eintrag)
+4. `POST /api/billing/run` → Response zeigt `consumption` & `amount`
+5. Optional: `GET /actuator/prometheus` kurz zeigen
