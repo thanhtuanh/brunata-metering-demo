@@ -156,6 +156,11 @@ curl -X POST "https://brunata-metering-demo.onrender.com/api/billing/run?contrac
   - JWT via `/auth/login` + "Authorize" in Swagger UI.
 - Health/Metrics: `/actuator/health`, `/actuator/prometheus` (keine sensiblen Details).
 
+### Auth (Demo – Basic, optional)
+- Aktivierung (ENV/Property): `DEMO_SECURITY_BASIC_ENABLED=true` (maps zu `demo.security.basic-enabled=true`).
+- Benutzer: `demo`, Passwort: `demo123`
+- Öffentlich bleiben: Landing-Page/Static, `/v3/api-docs/**`, `/swagger-ui/**`, `/actuator/health`, `/actuator/prometheus`.
+
 ## Tests & Checks
 - Nur API-Tests: `./scripts/test-api.sh`
 - Nur Services-Tests: `./scripts/test-services.sh`
