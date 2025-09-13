@@ -27,6 +27,8 @@ Dieses Tutorial führt durch Setup, erste Requests und die wichtigsten Komponent
 - `GET /api/readings?deviceId=...` – Messwerte anzeigen
 - `POST /api/billing/run?contractId=...&from=YYYY-MM-DD&to=YYYY-MM-DD` – Rechnung erzeugen
 
+Hinweis (optional Basic Auth): Wenn die Demo mit Basic Auth gestartet wurde, `-u demo:demo123` bei cURL anhängen und im Browser die Anmeldedaten verwenden.
+
 ## 4) Architektur‑Überblick
 - Module: common, domain, persistence, services, api, app
 - Schichten: API → Services → Persistence
@@ -49,3 +51,11 @@ Hinweis: Falls keine externen Mock‑Services für Jira/ERP verfügbar sind, kan
 - Moderne Java‑Basis: Java 21, Records für Config‑Typen, reaktive Pipelines, Option für virtuelle Threads.
 - Qualität & Tests: Unit/Controller‑Tests, präzise Validations, OpenAPI/Swagger.
 - Dev‑Ergonomie: Skripte (`start-demo.sh`), Docker‑Compose für DB, ausführliche README/Tutorials.
+
+## 7) Auth & Sicherheit (optional)
+- Keine Auth/RBAC: Die API ist aktuell ohne Authentifizierung/Autorisierung als öffentliche Demo verfügbar.
+  - Hinweis: Nur synthetische Demodaten; keine personenbezogenen Daten, Logs ohne PII.
+  - CORS restriktiv auf Demo‑Domain gesetzt.
+- Optionale Basic Auth aktivieren mit Property/Env `demo.security.basic-enabled=true` (ENV: `DEMO_SECURITY_BASIC_ENABLED=true`).
+- Demo‑Zugang: Benutzer `demo`, Passwort `demo123`.
+- Öffentlich bleiben: `/v3/api-docs/**`, `/swagger-ui/**`, `/actuator/health`, `/actuator/prometheus`, statische Seiten (`/`, `/index.html`, `/dev.html`).

@@ -48,6 +48,14 @@ Hinweise zur Blueprint‑Konfiguration (Docker Runtime)
   - Health: `/actuator/health`
   - Prometheus: `/actuator/prometheus`
 
+## Security/Compliance
+- Keine Auth/RBAC: Die API ist aktuell ohne Authentifizierung/Autorisierung als öffentliche Demo verfügbar.
+  - Hinweis: Nur synthetische Demodaten; keine personenbezogenen Daten, Logs ohne PII.
+  - CORS restriktiv auf Demo-Domain gesetzt.
+- Optional: Basic Auth aktivierbar über Env `DEMO_SECURITY_BASIC_ENABLED=true`.
+  - Demo-User: `demo` / `demo123`
+  - Öffentlich bleiben: `/v3/api-docs/**`, `/swagger-ui/**`, `/actuator/health`, `/actuator/prometheus`, statische Seiten.
+
 ## Troubleshooting
 - Port‑Fehler: Dockerfile startet mit `--server.port=$PORT`.
 - DB‑Verbindung: Falls Fehler „No suitable driver“ oder „invalid JDBC URL“, prüfe die `SPRING_DATASOURCE_URL`‑Transformation (postgres → jdbc:postgresql).

@@ -55,6 +55,13 @@ Seed-IDs (für Demos/Tests):
 
 OpenAPI/Swagger ist unter `/swagger-ui/index.html` verfügbar.
 
+## Sicherheit
+
+- Keine Auth/RBAC: Die API ist aktuell ohne Authentifizierung/Autorisierung als öffentliche Demo verfügbar.
+  - Hinweis: Nur synthetische Demodaten; keine personenbezogenen Daten, Logs ohne PII.
+  - CORS restriktiv auf Demo-Domain gesetzt.
+- Optional: Basic Auth via Toggle `demo.security.basic-enabled=true` (ENV: `DEMO_SECURITY_BASIC_ENABLED=true`) – Demo-User `demo` / `demo123`.
+
 ## Validierung & Fehlerbehandlung
 
 - DTO-Validierung (Bean Validation): `ReadingDto`
@@ -84,6 +91,8 @@ curl -X POST https://brunata-metering-demo.onrender.com/api/readings \
 ```bash
 curl -X POST "https://brunata-metering-demo.onrender.com/api/billing/run?contractId=f70ca20d-a2f3-4d87-ab64-482fe327d4c4&from=2025-09-01&to=2025-09-30"
 ```
+
+Hinweis: Wenn die optionale Basic Auth aktiviert ist, hänge `-u demo:demo123` an die Befehle an.
 
 ## Tests
 
