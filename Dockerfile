@@ -19,9 +19,8 @@ COPY app app
 # Build only the app artifact (skipping tests to speed up container build)
 # Ensure Spring Boot repackage runs so the JAR is executable with a Main-Class
 # Use fully qualified plugin goal with explicit version to avoid prefix resolution issues
-# Build and install the whole reactor so inter-module deps are available locally
-RUN mvn -q -DskipTests clean install \
- && mvn -q -pl app org.springframework.boot:spring-boot-maven-plugin:3.3.2:repackage
+# Build the full reactor once; app module will produce a bootable jar (repackage bound)
+RUN mvn -q -DskipTests clean package
 
 FROM eclipse-temurin:21-jre
 WORKDIR /app
