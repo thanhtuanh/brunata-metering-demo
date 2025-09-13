@@ -105,6 +105,10 @@
     <h2>Dashboard</h2>
     <p class="muted">
       Basis‑URL: <input id="baseInput" placeholder="https://brunata-metering-demo.onrender.com" style="padding:.35rem .5rem; border:1px solid var(--line); border-radius:6px; min-width:340px; font-size:.9rem;"/>
+      <span style="margin-left:1rem">Basic Auth (optional):
+        <input id="authUser" placeholder="user" style="padding:.3rem .5rem; border:1px solid var(--line); border-radius:6px; width:110px; font-size:.9rem;"/>
+        <input id="authPass" placeholder="pass" type="password" style="padding:.3rem .5rem; border:1px solid var(--line); border-radius:6px; width:110px; font-size:.9rem;"/>
+      </span>
     </p>
     <div class="grid">
       <div class="card">
@@ -147,12 +151,14 @@
 
     <h2>Beispiele</h2>
     <p>Readings ingest (cURL):</p>
-    <pre><code>curl -X POST https://brunata-metering-demo.onrender.com/api/readings \ 
- -H 'Content-Type: application/json' \ 
+    <pre><code>curl -X POST https://brunata-metering-demo.onrender.com/api/readings \
+ -H 'Content-Type: application/json' \
  -d '[{"deviceId":"&lt;UUID&gt;","readingTime":"2025-09-12T10:00:00Z","value":123.45,"unit":"kWh","source":"LoRa"}]'</code></pre>
+    <p class="muted">Hinweis: Bei aktivierter Basic Auth <code>-u demo:demo123</code> anfügen.</p>
 
     <p>Billing ausführen:</p>
     <pre><code>curl -X POST "https://brunata-metering-demo.onrender.com/api/billing/run?contractId=&lt;CONTRACT_UUID&gt;&from=2025-09-01&to=2025-09-30"</code></pre>
+    <p class="muted">Hinweis: Bei aktivierter Basic Auth <code>-u demo:demo123</code> anfügen.</p>
 
     <h2>Interaktiver cURL‑Generator</h2>
     <p class="muted">Basis‑URL wird automatisch gesetzt: <code id="baseUrl"></code>. Befehle aktualisieren sich live bei Eingaben.</p>
@@ -214,6 +220,17 @@
       if (byId('baseInput')) byId('baseInput').value = '';
       updateCmds(); checkDashboard();
     }
+    function getAuth(){
+      const user = (byId('authUser')?.value || '').trim();
+      const pass = (byId('authPass')?.value || '').trim();
+      return { user, pass };
+    }
+    function getAuthHeader(){
+      const { user, pass } = getAuth();
+      if (!user || !pass) return {};
+      const token = btoa(`${user}:${pass}`);
+      return { 'Authorization': `Basic ${token}` };
+    }
     function shellEscape(s){
       // naive escape for double quotes in JSON
       return String(s||'').replaceAll('"','\\"');
@@ -248,12 +265,16 @@
 }]`;
       const ingest = `curl -X POST ${base}/api/readings \\\n -H 'Content-Type: application/json' \\\n -d '${ingestJson}'`;
       byId('ingestCmd').textContent = ingest;
+      // Prepend Basic Auth to curl if provided
+      (function(){ const a=getAuth(); if(a.user&&a.pass){ const e=byId('ingestCmd'); e.textContent=e.textContent.replace(/^curl\s/,'curl -u '+shellEscape(a.user)+':'+shellEscape(a.pass)+' '); } })();
 
       const cId = byId('contractId').value || '<CONTRACT_UUID>';
       const from = byId('from').value || '2025-09-01';
       const to = byId('to').value || '2025-09-30';
       const bill = `curl -X POST \"${base}/api/billing/run?contractId=${cId}&from=${from}&to=${to}\"`;
       byId('billCmd').textContent = bill;
+      // Prepend Basic Auth to curl if provided
+      (function(){ const a=getAuth(); if(a.user&&a.pass){ const e=byId('billCmd'); e.textContent=e.textContent.replace(/^curl\s/,'curl -u '+shellEscape(a.user)+':'+shellEscape(a.pass)+' '); } })();
     }
     // Demo‑Seed via Flyway; kein API‑Seed mehr nötig
     // Kopier-/Aktualisieren-Buttons entfernt; Befehle aktualisieren automatisch
@@ -269,7 +290,8 @@
       const resEl = byId('ingestResult');
       resEl.style.display='block';
       try{
-        const r = await fetch(`${base}/api/readings`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+        const headers = Object.assign({'Content-Type':'application/json'}, getAuthHeader());
+        const r = await fetch(`${base}/api/readings`, { method:'POST', headers, body: JSON.stringify(payload) });
         const text = await r.text();
         resEl.textContent = `HTTP ${r.status}\n` + prettyMaybeJson(text);
       }catch(e){ resEl.textContent = String(e); }
@@ -283,7 +305,8 @@
       const resEl = byId('billResult');
       resEl.style.display='block';
       try{
-        const r = await fetch(`${base}/api/billing/run?contractId=${encodeURIComponent(cId)}&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`, { method:'POST' });
+        const headers = getAuthHeader();
+        const r = await fetch(`${base}/api/billing/run?contractId=${encodeURIComponent(cId)}&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`, { method:'POST', headers });
         const text = await r.text();
         resEl.textContent = `HTTP ${r.status}\n` + prettyMaybeJson(text);
       }catch(e){ resEl.textContent = String(e); }
@@ -294,7 +317,8 @@
       const resEl = byId('listResult');
       resEl.style.display='block';
       try{
-        const r = await fetch(`${base}/api/readings?deviceId=${encodeURIComponent(devId)}`);
+        const headers = getAuthHeader();
+        const r = await fetch(`${base}/api/readings?deviceId=${encodeURIComponent(devId)}`, { headers });
         const text = await r.text();
         resEl.textContent = `HTTP ${r.status}\n` + prettyMaybeJson(text);
       }catch(e){ resEl.textContent = String(e); }
