@@ -6,7 +6,7 @@ databases:
 services:
   - type: web
     name: brunata-metering-demo
-    env: linux
+    runtime: native
     plan: free
     region: frankfurt
     buildCommand: mvn -q -DskipTests -pl app -am package
@@ -34,4 +34,3 @@ services:
         value: framework
     healthCheckPath: /actuator/health
     autoDeploy: true
-
