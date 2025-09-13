@@ -148,6 +148,14 @@ curl -X POST https://brunata-metering-demo.onrender.com/api/readings \
 curl -X POST "https://brunata-metering-demo.onrender.com/api/billing/run?contractId=<CONTRACT_UUID>&from=2025-09-01&to=2025-09-30"
 ```
 
+Hinweis: Wenn die optionale Basic Auth aktiviert ist, hänge `-u demo:demo123` an die Befehle an, z. B.:
+
+```bash
+curl -u demo:demo123 -X POST https://brunata-metering-demo.onrender.com/api/readings \\
+ -H 'Content-Type: application/json' \\
+ -d '[{"deviceId":"<UUID>","readingTime":"2025-09-12T10:00:00Z","value":123.45,"unit":"kWh","source":"LoRa"}]'
+```
+
 ### Auth & Sicherheit
 - Demo-Daten; keine echten Kundendaten. Logs ohne PII.
 - CORS restriktiv (nur Demo-Domain).
