@@ -29,4 +29,19 @@ COPY --from=build /workspace/app/target/app-0.1.0.jar /app/app.jar
 
 # Render provides PORT and DATABASE_URL. Transform DATABASE_URL to JDBC on start.
 EXPOSE 8080
-CMD ["bash","-lc","echo Original DATABASE_URL=$DATABASE_URL; JDBC_URL=$(printf %s \"$DATABASE_URL\" | sed -E 's#^postgres(ql)?://#jdbc:postgresql://#; s#//[^/@]+@#//#'); echo Using JDBC_URL=$JDBC_URL; export SPRING_DATASOURCE_URL=\"$JDBC_URL\"; exec java $JAVA_OPTS -jar /app/app.jar --server.port=$PORT"]
+CMD ["bash","-lc","\
+echo Original DATABASE_URL=$DATABASE_URL; \
+JDBC_URL=$(printf %s \"$DATABASE_URL\" \
+  | sed -E 's#^postgres(ql)?://#jdbc:postgresql://#; s#//[^/@]+@#//#'); \
+# append sslmode=require if missing
+case \"$JDBC_URL\" in \
+  *\?*) echo \"URL has query\" >/dev/null ;; \
+  *) JDBC_URL=\"$JDBC_URL?sslmode=require\" ;; \
+esac; \
+case \"$JDBC_URL\" in \
+  *sslmode=*) : ;; \
+  *\?*) JDBC_URL=\"$JDBC_URL&sslmode=require\" ;; \
+esac; \
+echo Using JDBC_URL=$JDBC_URL; \
+export SPRING_DATASOURCE_URL=\"$JDBC_URL\"; \
+exec java $JAVA_OPTS -jar /app/app.jar --server.port=$PORT\n"]
