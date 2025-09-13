@@ -19,8 +19,8 @@
 - Konsistente Bezeichner & Endpunkte (Swagger ↔ README ↔ PDF).
 
 ### Security/Compliance
-- Demo-Creds / Demo-Daten; keine echten Kundendaten.
-- Logs ohne PII; CORS restriktiv auf Demo-Domain.
+- Aktuell keine Auth/RBAC (öffentliche Demo).
+- Demo-Daten; keine echten Kundendaten. Logs ohne PII. CORS restriktiv.
 
 ### Known Limits (siehe README)
 - Vereinfacht (MVP): Auth/RBAC basic, Billing-Formel simpel, Idempotenz & Ratenbegrenzung fehlen noch.

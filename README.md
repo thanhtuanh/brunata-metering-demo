@@ -175,19 +175,22 @@ curl -X POST "https://brunata-metering-demo.onrender.com/api/billing/run?contrac
 - Swagger UI: Pfad ist `/swagger-ui/index.html`
 
 ## Known Limits (MVP)
-- Auth/RBAC vereinfacht: Demo-User/Basic; kein Keycloak/JWT-Rollenmodell.
-- Billing vereinfacht: lineares Tarifmodell; keine Staffel-/Zeitfensterpreise.
-- Idempotenz fehlt: POST /readings kann bei Retries doppelt erzeugen.
-- Rate Limiting / Throttling fehlt: kein Schutz gegen Burst-Loads.
-- Multi-Tenancy/Scopes: (noch) nicht mandantenfähig.
-- Datenvalidierung/basic: Plausibilitäten einfach; kein Schema-Level für Einheiten/Konversion.
-- Pagination/Filter: rudimentär (page,size); komplexe Filter (by device/time) nur Basis.
-- Tests: Fokus auf Happy Path + wenige Fehlerfälle; Last-/Contract-Tests fehlen.
-- Observability: Metriken vorhanden, aber keine fertigen Dashboards/Alerts.
-- SLOs/SLIs: nicht definiert; kein Error Budget/Availability-Ziel.
+
+- **Keine Auth/RBAC:** Die API ist aktuell **ohne** Authentifizierung/Autorisierung als **öffentliche Demo** verfügbar.
+  - Hinweis: Nur synthetische Demodaten; keine personenbezogenen Daten, Logs ohne PII.
+  - CORS restriktiv auf Demo-Domain gesetzt.
+- **Billing vereinfacht:** Lineares Tarifmodell; keine Staffel-/Zeitfensterpreise.
+- **Idempotenz fehlt:** POST /readings kann bei Retries doppelt erzeugen.
+- **Rate Limiting fehlt:** Kein Schutz gegen Burst-Loads.
+- **Multi-Tenancy/Scopes:** (noch) nicht mandantenfähig.
+- **Datenvalidierung/basic:** Plausibilitäten einfach; kein Schema-Level für Einheiten/Konversion.
+- **Pagination/Filter:** rudimentär (page,size); komplexe Filter (by device/time) nur Basis.
+- **Tests limitiert:** Fokus auf Happy Path; weitere Fehler-/Lasttests offen.
+- **Observability basic:** Metriken vorhanden, aber keine Dashboards/Alerts.
+- **SLOs/SLIs:** nicht definiert; kein Error Budget/Availability-Ziel.
 
 ## Next Steps (Roadmap)
-- Security/RBAC: Keycloak + JWT, Rollen (viewer/ops/admin), Swagger-SecuritySchemes.
+- **Security/RBAC hinzufügen:** (Option A) Basic Auth für Demo; (Option B) Keycloak + JWT + Rollen (viewer/ops/admin).
 - API-Versionierung: `/api/v1/...`; Backward-Compatibility Leitlinien.
 - Idempotenz: Idempotency-Key für Write-APIs, 409/200 Semantik.
 - Rate Limiting: Token Bucket/Redis, 429-Handling + Retry-After.
