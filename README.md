@@ -1,10 +1,14 @@
 # Brunata Metering Demo
 
 Java-Backend-Demo für Zählerdaten und Abrechnung – mit klarer Modularchitektur, Flyway-Migrationen und schnellen Dev-Skripten.
+Validiert typische Metering-Flows (Geräte/Readings → Abrechnung) mit klaren Schichten (API→Service→Persistence) und robusten Migrationen (Flyway). Health, Swagger und Prometheus sind out-of-the-box aktiv, wodurch Betrieb & Diagnose sofort möglich sind.
 
 Live-Demo (Render): https://brunata-metering-demo.onrender.com
 
-OpenAPI UI lokal: http://localhost:8080/swagger-ui/index.html
+OpenAPI UI: https://brunata-metering-demo.onrender.com/swagger-ui/index.html
+OpenAPI JSON: https://brunata-metering-demo.onrender.com/v3/api-docs
+Health: https://brunata-metering-demo.onrender.com/actuator/health
+Prometheus: https://brunata-metering-demo.onrender.com/actuator/prometheus
 
 Dokumentation
 - [Schritt‑für‑Schritt Tutorial (Technik‑Doku)](docs/tutorial.md)
@@ -127,7 +131,7 @@ mvn -U -DskipTests clean install
 mvn -pl app spring-boot:run
 ```
 
-Health: http://localhost:8080/actuator/health
+Health: https://brunata-metering-demo.onrender.com/actuator/health
 
 ## Deployment (Render)
 - Beschreibung und Blueprint: siehe `docs/render-deploy.md` und `render.yaml`
@@ -135,17 +139,22 @@ Health: http://localhost:8080/actuator/health
 
 ## Beispiele (cURL)
 ```bash
-# Device anlegen (psql‑Beispiel)
-# insert into device(id, type, serial_no, location) values(gen_random_uuid(),'HEAT','HT-001','Munich');
-
 # Reading posten (ein Messwert)
-curl -X POST http://localhost:8080/api/readings \
+curl -X POST https://brunata-metering-demo.onrender.com/api/readings \
  -H 'Content-Type: application/json' \
  -d '[{"deviceId":"<UUID>","readingTime":"2025-09-12T10:00:00Z","value":123.45,"unit":"kWh","source":"LoRa"}]'
 
 # Billing (erfordert Contract + Readings im Zeitraum)
-curl -X POST "http://localhost:8080/api/billing/run?contractId=<CONTRACT_UUID>&from=2025-09-01&to=2025-09-30"
+curl -X POST "https://brunata-metering-demo.onrender.com/api/billing/run?contractId=<CONTRACT_UUID>&from=2025-09-01&to=2025-09-30"
 ```
+
+### Auth & Sicherheit
+- Demo-Daten; keine echten Kundendaten. Logs ohne PII.
+- CORS restriktiv (nur Demo-Domain).
+- Auth-Varianten:
+  - Basic (Demo-User) oder
+  - JWT via `/auth/login` + "Authorize" in Swagger UI.
+- Health/Metrics: `/actuator/health`, `/actuator/prometheus` (keine sensiblen Details).
 
 ## Tests & Checks
 - Nur API-Tests: `./scripts/test-api.sh`

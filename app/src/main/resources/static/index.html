@@ -65,7 +65,9 @@
       <div class="nav">
         <a href="/dev.html">Dev‑Doku</a>
         <a href="/swagger-ui/index.html">Swagger</a>
+        <a href="/v3/api-docs">OpenAPI</a>
         <a href="/actuator/health">Health</a>
+        <a href="/actuator/prometheus">Metrics</a>
       </div>
     </nav>
     <header>
@@ -75,8 +77,6 @@
        
         <span class="sep">·</span>
         <a href="https://github.com/thanhtuanh/brunata-metering-demo" target="_blank" rel="noopener"> GitHub Repo</a>
-        <span class="sep">·</span>
-        <a href="/dev.html">Dev‑Doku</a>
       
       </p>
     </header>
@@ -87,6 +87,9 @@
       Java/Spring‑Boot‑Demo mit Geräte‑ und Messwertverwaltung, sowie Abrechnung (Billing).
       Fokus: saubere Schichten (API → Service → Persistence), robuste Migrationen (Flyway),
       Postgres‑Best‑Practices (Constraints/Indizes) und schnelle Dev‑Skripte.
+    </p>
+    <p class="muted">
+      Validiert typische Metering‑Flows (Geräte/Readings → Abrechnung) mit klaren Schichten (API→Service→Persistence) und robusten Migrationen (Flyway). Health, Swagger und Prometheus sind out‑of‑the‑box aktiv, wodurch Betrieb & Diagnose sofort möglich sind.
     </p>
 
     <h2>Tech‑Stack</h2>
@@ -102,7 +105,6 @@
     <h2>Dashboard</h2>
     <p class="muted">
       Basis‑URL: <input id="baseInput" placeholder="https://brunata-metering-demo.onrender.com" style="padding:.35rem .5rem; border:1px solid var(--line); border-radius:6px; min-width:340px; font-size:.9rem;"/>
-      <span style="margin-left:.5rem">Aktuell: <code id="dashBase"></code></span>
     </p>
     <div class="grid">
       <div class="card">
@@ -135,14 +137,22 @@
       <li>Landing‑Page, Swagger, Health sofort verfügbar</li>
     </ul>
 
+    <h2>Auth &amp; Sicherheit</h2>
+    <ul>
+      <li>Demo‑Daten; keine echten Kundendaten. Logs ohne PII.</li>
+      <li>CORS restriktiv (nur Demo‑Domain).</li>
+      <li>Auth‑Varianten: Basic (Demo‑User) <strong>oder</strong> JWT via <code>/auth/login</code> + „Authorize“ in Swagger UI.</li>
+      <li>Health/Metrics: <code>/actuator/health</code>, <code>/actuator/prometheus</code> (keine sensiblen Details).</li>
+    </ul>
+
     <h2>Beispiele</h2>
     <p>Readings ingest (cURL):</p>
-    <pre><code>curl -X POST http://localhost:8081/api/readings \ 
+    <pre><code>curl -X POST https://brunata-metering-demo.onrender.com/api/readings \ 
  -H 'Content-Type: application/json' \ 
  -d '[{"deviceId":"&lt;UUID&gt;","readingTime":"2025-09-12T10:00:00Z","value":123.45,"unit":"kWh","source":"LoRa"}]'</code></pre>
 
     <p>Billing ausführen:</p>
-    <pre><code>curl -X POST "http://localhost:8081/api/billing/run?contractId=&lt;CONTRACT_UUID&gt;&from=2025-09-01&to=2025-09-30"</code></pre>
+    <pre><code>curl -X POST "https://brunata-metering-demo.onrender.com/api/billing/run?contractId=&lt;CONTRACT_UUID&gt;&from=2025-09-01&to=2025-09-30"</code></pre>
 
     <h2>Interaktiver cURL‑Generator</h2>
     <p class="muted">Basis‑URL wird automatisch gesetzt: <code id="baseUrl"></code>. Befehle aktualisieren sich live bei Eingaben.</p>
@@ -304,7 +314,6 @@
     }
     async function checkDashboard(){
       const base = getBase();
-      byId('dashBase').textContent = base;
       // Health
       try{
         const r = await fetch(base + '/actuator/health');

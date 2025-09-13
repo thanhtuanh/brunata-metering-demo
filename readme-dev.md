@@ -8,8 +8,8 @@ Dieser Leitfaden richtet sich an Entwickler. Er beschreibt Architektur, Setup, D
 - Starten (DB + App, automatischer Port 8080..8085):
   - `./start-demo.sh`
 - Wichtige Links (Port gemäß Startscript):
-  - Health: `http://localhost:<port>/actuator/health`
-  - Swagger UI: `http://localhost:<port>/swagger-ui/index.html`
+- Health: `http://localhost:<port>/actuator/health`
+- Swagger UI: `http://localhost:<port>/swagger-ui/index.html`
   - Landing Page: `http://localhost:<port>/`
   - Prometheus: `http://localhost:<port>/actuator/prometheus`
 
@@ -74,7 +74,7 @@ OpenAPI/Swagger ist unter `/swagger-ui/index.html` verfügbar.
 - Readings ingest:
 
 ```bash
-curl -X POST http://localhost:<port>/api/readings \
+curl -X POST https://brunata-metering-demo.onrender.com/api/readings \
  -H 'Content-Type: application/json' \
  -d '[{"deviceId":"62eb5088-15b6-4128-b7fe-44690e42099d","readingTime":"<ISO_PAST>","value":170.0,"unit":"kWh","source":"LoRa"}]'
 ```
@@ -82,7 +82,7 @@ curl -X POST http://localhost:<port>/api/readings \
 - Billing:
 
 ```bash
-curl -X POST "http://localhost:<port>/api/billing/run?contractId=f70ca20d-a2f3-4d87-ab64-482fe327d4c4&from=2025-09-01&to=2025-09-30"
+curl -X POST "https://brunata-metering-demo.onrender.com/api/billing/run?contractId=f70ca20d-a2f3-4d87-ab64-482fe327d4c4&from=2025-09-01&to=2025-09-30"
 ```
 
 ## Tests
