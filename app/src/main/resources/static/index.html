@@ -6,36 +6,44 @@
   <title>Brunata Metering Demo – Bewerbung von Duc Thanh Nguyen</title>
   <style>
     :root{
-      --bg:#0b1220;         /* dunkler Hintergrund für professionelle Optik */
-      --surface:#ffffff;    /* Kartenfarbe */
-      --ink:#0e1116;        /* Textfarbe */
-      --muted:#6b7280;      /* Sekundärtext */
-      --brand:#0b5afa;      /* Akzentfarbe */
-      --line:#e5e7eb;       /* zarte Linie */
-      --code:#f7f7f9;       /* Code-Hintergrund */
+      --surface:#ffffff;
+      --ink:#0e1116;
+      --muted:#6b7280;
+      --brand:#0b5afa;
+      --line:#e5e7eb;
+      --code:#f7f7f9;
+      --radius:12px;
+      --shadow:0 6px 16px rgba(15,23,42,.06);
+      --space:1rem;
     }
-    html, body { margin:0; padding:0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif; color:var(--ink); background:linear-gradient(180deg,#f6f7fb 0%, #ffffff 100%); }
-    .wrap { max-width: 980px; margin: 3rem auto; padding: 0 1.2rem; }
-    header h1 { margin: 0; font-size: 2rem; letter-spacing:.2px; }
-    header p { margin:.4rem 0 0; color:var(--muted); display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; }
+    html, body { margin:0; padding:0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif; color:var(--ink); background:#fafafa; }
+    .wrap { max-width: 1040px; margin: 2.4rem auto; padding: 0 1.2rem; }
+    .topbar { display:flex; align-items:center; justify-content:space-between; padding: .9rem 1rem; border:1px solid var(--line); border-radius: var(--radius); background:var(--surface); box-shadow: var(--shadow); }
+    .brand { display:flex; align-items:center; gap:.6rem; font-weight:700; letter-spacing:.2px; }
+    .brand a { text-decoration:none; color:var(--ink); }
+    .nav { display:flex; gap:1rem; }
+    .nav a { color:#111827; text-decoration:none; font-weight:500; }
+    .nav a:hover { color:var(--brand); }
+    header { margin-top: 1.6rem; }
+    header h1 { margin: 0; font-size: 1.9rem; letter-spacing:.2px; }
+    header p { margin:.5rem 0 0; color:var(--muted); display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; }
     header p a { color:var(--brand); text-decoration:none; font-weight:500; }
     header p a:hover { text-decoration:underline; }
     header p .sep { color:#c4c7cf; margin:0 .25rem; }
-    h2 { margin: 2rem 0 .75rem; font-size: 1.25rem; }
-    code { background:var(--code); padding:2px 6px; border-radius:4px; }
-    pre { background:var(--code); padding: 12px 14px; border-radius: 10px; overflow:auto; border:1px solid var(--line); }
+    h2 { margin: 1.8rem 0 .8rem; font-size: 1.25rem; }
+    code { background:var(--code); padding:2px 6px; border-radius:6px; }
+    pre { background:var(--code); padding: 12px 14px; border-radius: var(--radius); overflow:auto; border:1px solid var(--line); }
     .grp { display:grid; grid-template-columns: 220px 1fr; gap:.6rem 1rem; align-items:center; margin:.5rem 0; }
     .grp label { color:#374151; font-size:.95rem; }
     .grp input { padding:.55rem .6rem; border:1px solid var(--line); border-radius:8px; min-width: 280px; font-size:.95rem; }
     .row { margin:.8rem 0; }
     .btn { display:inline-block; padding:.55rem .8rem; background:var(--brand); color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:.95rem; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
-    .btn.secondary { background:#111827; }
     .btn:hover { filter:brightness(.97); }
     .muted { color:var(--muted); font-size:.95rem; }
     .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap:16px; margin:.6rem 0 1rem; }
-    .card { border:1px solid var(--line); border-radius:12px; padding:14px 16px; background:var(--surface); box-shadow: 0 6px 16px rgba(15,23,42,.05); }
+    .card { border:1px solid var(--line); border-radius:var(--radius); padding:14px 16px; background:var(--surface); box-shadow: var(--shadow); }
     .card h3 { margin:.2rem 0 .7rem; font-size:1.05rem; color:#111827; }
-    .badge { display:inline-block; padding:.2rem .55rem; border-radius:999px; font-size:.8rem; font-weight:600; border:1px solid var(--line); }
+    .badge { display:inline-block; padding:.25rem .6rem; border-radius:999px; font-size:.8rem; font-weight:600; border:1px solid var(--line); min-width:64px; text-align:center; }
     .ok { background:#e7f6ec; color:#137333; }
     .bad { background:#fdecea; color:#b00020; }
     .warn { background:#fff4e5; color:#8a5700; }
@@ -52,6 +60,14 @@
 </head>
 <body>
   <div class="wrap">
+    <nav class="topbar">
+      <div class="brand"><a href="/">Brunata Metering Demo</a></div>
+      <div class="nav">
+        <a href="/dev.html">Dev‑Doku</a>
+        <a href="/swagger-ui/index.html">Swagger</a>
+        <a href="/actuator/health">Health</a>
+      </div>
+    </nav>
     <header>
       <h1>Brunata Metering Demo</h1>
       <p>
@@ -85,10 +101,7 @@
 
     <h2>Dashboard</h2>
     <p class="muted">
-      Basis‑URL:
-      <input id="baseInput" placeholder="https://brunata-metering-demo.onrender.com" style="padding:.35rem .5rem; border:1px solid var(--line); border-radius:6px; min-width:340px; font-size:.9rem;"/>
-      <button class="btn secondary" onclick="saveBase()">Speichern</button>
-      <button class="btn secondary" style="margin-left:.3rem;background:#374151" onclick="resetBase()">Zurücksetzen</button>
+      Basis‑URL: <input id="baseInput" placeholder="https://brunata-metering-demo.onrender.com" style="padding:.35rem .5rem; border:1px solid var(--line); border-radius:6px; min-width:340px; font-size:.9rem;"/>
       <span style="margin-left:.5rem">Aktuell: <code id="dashBase"></code></span>
     </p>
     <div class="grid">

@@ -5,17 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Brunata Metering Demo – Developer Guide</title>
   <style>
-    :root{ --line:#e5e7eb; --ink:#0e1116; --muted:#6b7280; --brand:#0b5afa; --code:#f7f7f9; }
-    html, body { margin:0; padding:0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif; color:var(--ink); background:#ffffff; }
-    .wrap { max-width: 980px; margin: 2rem auto; padding: 0 1.2rem; }
+    :root{ --line:#e5e7eb; --ink:#0e1116; --muted:#6b7280; --brand:#0b5afa; --code:#f7f7f9; --radius:12px; --shadow:0 6px 16px rgba(15,23,42,.06); }
+    html, body { margin:0; padding:0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif; color:var(--ink); background:#fafafa; }
+    .wrap { max-width: 1040px; margin: 2.4rem auto; padding: 0 1.2rem; }
+    .topbar { display:flex; align-items:center; justify-content:space-between; padding: .9rem 1rem; border:1px solid var(--line); border-radius: var(--radius); background:#fff; box-shadow: var(--shadow); }
+    .brand { display:flex; align-items:center; gap:.6rem; font-weight:700; }
+    .brand a { text-decoration:none; color:var(--ink); }
+    .nav { display:flex; gap:1rem; }
+    .nav a { color:#111827; text-decoration:none; font-weight:500; }
+    .nav a:hover { color:var(--brand); }
+    header { margin-top: 1.6rem; }
     header h1 { margin: 0; font-size: 1.9rem; letter-spacing:.2px; }
     header p { margin:.4rem 0 0; color:var(--muted); }
     a { color:var(--brand); text-decoration:none; }
     a:hover { text-decoration:underline; }
     h2 { margin: 1.6rem 0 .6rem; font-size: 1.35rem; }
     h3 { margin: 1.2rem 0 .5rem; font-size: 1.1rem; }
-    code { background:var(--code); padding:2px 6px; border-radius:4px; }
-    pre { background:var(--code); padding: 12px 14px; border-radius: 10px; overflow:auto; border:1px solid var(--line); }
+    code { background:var(--code); padding:2px 6px; border-radius:6px; }
+    pre { background:var(--code); padding: 12px 14px; border-radius: var(--radius); overflow:auto; border:1px solid var(--line); box-shadow: var(--shadow); }
     ul { margin:.4rem 0 .8rem 1.2rem; }
     .muted { color:var(--muted); }
   </style>
@@ -39,6 +46,14 @@
 </head>
 <body>
   <div class="wrap">
+    <nav class="topbar">
+      <div class="brand"><a href="/">Brunata Metering Demo</a></div>
+      <div class="nav">
+        <a href="/">Home</a>
+        <a href="/swagger-ui/index.html">Swagger</a>
+        <a href="/actuator/health">Health</a>
+      </div>
+    </nav>
     <header>
       <h1>Brunata Metering Demo – Developer Guide</h1>
       <p class="muted">Kompakte Doku für Setup, Architektur, Datenmodell, APIs, Tests und typische Dev‑Workflows. Zurück zur <a href="/">Landing‑Page</a>.</p>
@@ -69,21 +84,43 @@
     </ul>
     <p>Schichten: API → Services → Persistence; Entities leben in <code>domain</code>, Repositories in <code>persistence</code>.</p>
 
-    <h3>Monolith vs. Microservices</h3>
-    <ul>
-      <li>Modularer Monolith: ein deploybares Artefakt, klare Modulgrenzen</li>
-      <li>Gründe: schnelle Iteration, einfaches Deployment, transaktionale Konsistenz</li>
-      <li>Ready‑to‑split: Module so geschnitten, dass spätere Service‑Extraktion möglich</li>
-    </ul>
+    <h3>Architekturmodell: Modularer Monolith</h3>
+    <p>Ein deploybares Spring‑Boot‑Artefakt mit klaren Modulgrenzen. Vorteile: schnelle Iteration, einfaches Deployment, konsistente Transaktionen.</p>
 
-    <h3>Migrationspfad zu Microservices (Kurzplan)</h3>
-    <ol>
-      <li>Boundaries: <code>readings</code>, <code>billing</code>, <code>contracts</code>; DTOs/OpenAPI; kein Entity‑Sharing</li>
-      <li>Daten trennen: eigene Schemas/DBs; Read‑Model/Views; Outbox/CDC für Events</li>
-      <li>Kommunikation: REST mit Timeouts/Retry/Circuit‑Breaker; Events (Kafka/RabbitMQ)</li>
-      <li>Observability: Gateway, Tracing (OpenTelemetry), strukturierte Logs, Dashboards</li>
-      <li>Delivery: Container je Service, Pipelines, IaC (Helm/K8s oder Cloud)</li>
-    </ol>
+    <h3>Architekturdiagramm (einfaches Schema)</h3>
+    <pre><code>          Clients (Swagger UI, cURL)
+                    |
+                    v
+        +-------------------------+
+        | api (REST Controller)   |  &lt;— OpenAPI
+        +-----------+-------------+
+                    |
+                    v
+        +-------------------------+
+        | services (Business)     |  — Validierung, Transaktionen,
+        |                         |    Fehler (ValidationException)
+        +-----------+-------------+
+                    |
+                    v
+        +-------------------------+          +----------------------+
+        | persistence (Repos)     |  JPA     | PostgreSQL 16        |
+        | Spring Data JPA         +&lt;--------&gt;+ (Flyway Schema)      |
+        +-----------+-------------+          +----------------------+
+                    |
+                    v
+        +-------------------------+
+        | domain (Entities)       |
+        +-------------------------+
+
+        +-------------------------+          +----------------------+
+        | common (ApiError etc.)  |&lt;—— Fehler-Mapping (ProblemDetail)
+        +-------------------------+
+
+        +-------------------------+          +----------------------+
+        | app (Runtime)           |———→ Flyway Migrationen
+        | Spring Boot + Actuator  |———→ Health/Metrics
+        +-------------------------+          +----------------------+
+    </code></pre>
 
     <h2>Datenbank &amp; Migrationen</h2>
     <ul>
@@ -166,4 +203,3 @@
   </div>
 </body>
 </html>
-
