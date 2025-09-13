@@ -7,9 +7,9 @@ Live-Demo (Render): https://brunata-metering-demo.onrender.com
 OpenAPI UI lokal: http://localhost:8080/swagger-ui/index.html
 
 Dokumentation
-- docs/tutorial.md – Schritt‑für‑Schritt Tutorial (Technik‑Doku)
-- readme-dev.md – Entwickler‑Doku (Architektur, Setup, Datenmodell, Tests)
-- docs/render-deploy.md – Deployment auf Render (GitHub Auto‑Deploy)
+- [Schritt‑für‑Schritt Tutorial (Technik‑Doku)](docs/tutorial.md)
+- [Entwickler‑Doku (Architektur, Setup, Datenmodell, Tests)](readme-dev.md)
+- [Deployment auf Render (GitHub Auto‑Deploy)](docs/render-deploy.md)
 
 ## Tech-Stack
 - Java 21, Maven (Multi-Module)
