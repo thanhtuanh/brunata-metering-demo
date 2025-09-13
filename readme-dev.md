@@ -26,17 +26,9 @@ Die Demo-Daten werden automatisch per Flyway-Migration angelegt (deterministisch
 
 Schnitt: API → Services → Persistence; Entities leben in `domain`, Repositories in `persistence`.
 
-### Monolith vs. Microservices
-- Dieses Projekt ist ein modularer Monolith: ein deploybares Artefakt, klare Modulgrenzen.
+### Architekturmodell: Modularer Monolith
+- Dieses Projekt ist ein modularer Monolith: ein deploybares Artefakt mit klaren Modulgrenzen.
 - Gründe: schnelle Iteration, einfaches Deployment, transaktionale Konsistenz.
-- Microservices‑Erfahrung ist anschlussfähig: Module sind bewusst so geschnitten, dass sie als Services extrahiert werden können („ready‑to‑split“).
-
-### Migrationspfad zu Microservices (Kurzplan)
-1) Service‑Boundaries schärfen: `readings`, `billing`, `contracts` als fachliche Schnitte; OpenAPI/DTOs definieren, kein Entity‑Sharing.
-2) Daten entkoppeln: eigene Schemas/DBs je Service; Read‑Model/Views oder Replikate für Querzugriffe; Outbox/CDC für Events (Idempotenz sicherstellen).
-3) Kommunikation & Resilienz: synchrone REST‑Calls hart absichern (Timeouts, Retry, Circuit‑Breaker) und asynchrone Events (Kafka/RabbitMQ) für Entkopplung.
-4) Observability & Platform: API‑Gateway, Tracing (OpenTelemetry), strukturierte Logs, zentrale Metriken/Dashboards.
-5) Delivery: eigenständige Container‑Images & Pipelines pro Service; Infra‑as‑Code (Helm/K8s oder Cloud‑Runtime).
 
 ## Datenbank & Migrationen
 
