@@ -143,10 +143,11 @@
 
     <h2>Auth &amp; Sicherheit</h2>
     <ul>
-      <li>Demo‑Daten; keine echten Kundendaten. Logs ohne PII.</li>
-      <li>CORS restriktiv (nur Demo‑Domain).</li>
-      <li>Auth‑Varianten: Basic (Demo‑User) <strong>oder</strong> JWT via <code>/auth/login</code> + „Authorize“ in Swagger UI.</li>
-      <li>Health/Metrics: <code>/actuator/health</code>, <code>/actuator/prometheus</code> (keine sensiblen Details).</li>
+      <li><strong>Keine Auth/RBAC:</strong> Öffentliche Demo ohne Authentifizierung/Autorisierung.</li>
+      <li><strong>Hinweis:</strong> Nur synthetische Demodaten; keine PII in Logs.</li>
+      <li><strong>CORS:</strong> restriktiv auf Demo‑Domain gesetzt.</li>
+      <li><strong>Optional:</strong> Basic Auth per Toggle (<code>demo.security.basic-enabled=true</code>) – User <code>demo</code>, Pass <code>demo123</code>.</li>
+      <li><strong>Health/Metrics:</strong> <code>/actuator/health</code>, <code>/actuator/prometheus</code>.</li>
     </ul>
 
     <h2>Beispiele</h2>

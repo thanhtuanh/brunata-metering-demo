@@ -160,8 +160,10 @@
     <pre data-origin><code>curl -X POST http://localhost:&lt;port&gt;/api/readings \
  -H 'Content-Type: application/json' \
  -d '[{"deviceId":"62eb5088-15b6-4128-b7fe-44690e42099d","readingTime":"&lt;ISO_PAST&gt;","value":170.0,"unit":"kWh","source":"LoRa"}]'</code></pre>
+    <p class="muted">Hinweis: Bei aktivierter Basic Auth <code>-u demo:demo123</code> anfügen (in lokalen Beispielen ggf. <code>http://localhost:&lt;port&gt;</code> durch Render‑URL ersetzen).</p>
     <h3>Billing</h3>
     <pre data-origin><code>curl -X POST "http://localhost:&lt;port&gt;/api/billing/run?contractId=f70ca20d-a2f3-4d87-ab64-482fe327d4c4&amp;from=2025-09-01&amp;to=2025-09-30"</code></pre>
+    <p class="muted">Hinweis: Bei aktivierter Basic Auth <code>-u demo:demo123</code> anfügen.</p>
 
     <h2>Tests</h2>
     <ul>
@@ -181,10 +183,11 @@
 
     <h2>Auth &amp; Sicherheit</h2>
     <ul>
-      <li>Demo‑Daten, keine echten Kundendaten; Logs ohne PII.</li>
-      <li>CORS restriktiv (nur Demo‑Domain).</li>
-      <li>Auth‑Varianten: Basic (Demo‑User) <strong>oder</strong> JWT via <code>/auth/login</code> mit „Authorize“ in Swagger UI.</li>
-      <li>Health/Metrics: <code>/actuator/health</code>, <code>/actuator/prometheus</code> – ohne sensible Details.</li>
+      <li><strong>Keine Auth/RBAC:</strong> Öffentliche Demo ohne Authentifizierung/Autorisierung.</li>
+      <li><strong>Hinweis:</strong> Nur synthetische Demodaten; keine PII in Logs.</li>
+      <li><strong>CORS:</strong> restriktiv auf Demo‑Domain gesetzt.</li>
+      <li><strong>Optional:</strong> Basic Auth per Toggle (<code>demo.security.basic-enabled=true</code>) – User <code>demo</code>, Pass <code>demo123</code>.</li>
+      <li><strong>Health/Metrics:</strong> <code>/actuator/health</code>, <code>/actuator/prometheus</code>.</li>
     </ul>
 
     <h3>Integrationsjobs (SyncService)</h3>
