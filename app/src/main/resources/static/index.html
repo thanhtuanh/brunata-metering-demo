@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Brunata Metering Demo – Bewerbung von Duc Thanh Nguyen</title>
+  <style>
+    :root{
+      --bg:#0b1220;         /* dunkler Hintergrund für professionelle Optik */
+      --surface:#ffffff;    /* Kartenfarbe */
+      --ink:#0e1116;        /* Textfarbe */
+      --muted:#6b7280;      /* Sekundärtext */
+      --brand:#0b5afa;      /* Akzentfarbe */
+      --line:#e5e7eb;       /* zarte Linie */
+      --code:#f7f7f9;       /* Code-Hintergrund */
+    }
+    html, body { margin:0; padding:0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif; color:var(--ink); background:linear-gradient(180deg,#f6f7fb 0%, #ffffff 100%); }
+    .wrap { max-width: 980px; margin: 3rem auto; padding: 0 1.2rem; }
+    header h1 { margin: 0; font-size: 2rem; letter-spacing:.2px; }
+    header p { margin:.4rem 0 0; color:var(--muted); display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; }
+    header p a { color:var(--brand); text-decoration:none; font-weight:500; }
+    header p a:hover { text-decoration:underline; }
+    header p .sep { color:#c4c7cf; margin:0 .25rem; }
+    h2 { margin: 2rem 0 .75rem; font-size: 1.25rem; }
+    code { background:var(--code); padding:2px 6px; border-radius:4px; }
+    pre { background:var(--code); padding: 12px 14px; border-radius: 10px; overflow:auto; border:1px solid var(--line); }
+    .grp { display:grid; grid-template-columns: 220px 1fr; gap:.6rem 1rem; align-items:center; margin:.5rem 0; }
+    .grp label { color:#374151; font-size:.95rem; }
+    .grp input { padding:.55rem .6rem; border:1px solid var(--line); border-radius:8px; min-width: 280px; font-size:.95rem; }
+    .row { margin:.8rem 0; }
+    .btn { display:inline-block; padding:.55rem .8rem; background:var(--brand); color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:.95rem; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+    .btn.secondary { background:#111827; }
+    .btn:hover { filter:brightness(.97); }
+    .muted { color:var(--muted); font-size:.95rem; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap:16px; margin:.6rem 0 1rem; }
+    .card { border:1px solid var(--line); border-radius:12px; padding:14px 16px; background:var(--surface); box-shadow: 0 6px 16px rgba(15,23,42,.05); }
+    .card h3 { margin:.2rem 0 .7rem; font-size:1.05rem; color:#111827; }
+    .badge { display:inline-block; padding:.2rem .55rem; border-radius:999px; font-size:.8rem; font-weight:600; border:1px solid var(--line); }
+    .ok { background:#e7f6ec; color:#137333; }
+    .bad { background:#fdecea; color:#b00020; }
+    .warn { background:#fff4e5; color:#8a5700; }
+    .small { font-size:.9rem; color:#374151; }
+    footer { margin-top:2rem; color:var(--muted); font-size:.9rem; }
+  </style>
+  <meta name="description" content="Brunata Metering Demo – Java/Spring Boot Bewerbung von Duc Thanh Nguyen" />
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="data:," />
+  <!-- Optional OpenGraph -->
+  <meta property="og:title" content="Brunata Metering Demo – Bewerbung" />
+  <meta property="og:description" content="Java 21, Spring Boot, PostgreSQL, Flyway, REST & Billing" />
+  <meta property="og:type" content="website" />
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Brunata Metering Demo</h1>
+      <p>
+        Bewerbung – Projekt von <strong>Duc Thanh Nguyen</strong>
+       
+        <span class="sep">·</span>
+        <a href="https://github.com/thanhtuanh/brunata-metering-demo" target="_blank" rel="noopener"> GitHub Repo</a>
+      
+      </p>
+    </header>
+    <div class="row"><span class="muted">Demo‑Daten werden automatisch bei DB‑Init angelegt (Flyway V5).</span></div>
+
+    <h2>Über das Projekt</h2>
+    <p>
+      Java/Spring‑Boot‑Demo mit Geräte‑ und Messwertverwaltung, sowie Abrechnung (Billing).
+      Fokus: saubere Schichten (API → Service → Persistence), robuste Migrationen (Flyway),
+      Postgres‑Best‑Practices (Constraints/Indizes) und schnelle Dev‑Skripte.
+    </p>
+
+    <h2>Tech‑Stack</h2>
+    <ul>
+      <li>Java 21, Spring Boot 3.3, Maven</li>
+      <li>Spring Data JPA (Hibernate), PostgreSQL 16</li>
+      <li>Flyway 10 (+ Postgres‑Modul), OpenAPI</li>
+      <li>WebClient (Sync‑Mock: Jira/ERP), Scheduling</li>
+      <li>Tests: JUnit 5, Mockito, MockMvc, (Testcontainers vorbereitet)</li>
+      <li>Actuator + Prometheus (Metrics)</li>
+    </ul>
+
+    <h2>Dashboard</h2>
+    <p class="muted">Basis‑URL: <code id="dashBase"></code> · <button class="btn secondary" onclick="checkDashboard()">Neu prüfen</button></p>
+    <div class="grid">
+      <div class="card">
+        <h3>Health</h3>
+        <div id="healthBadge" class="badge warn">…</div>
+        <div class="small" id="healthInfo"></div>
+      </div>
+      <div class="card">
+        <h3>Datenbank</h3>
+        <div id="dbBadge" class="badge warn">…</div>
+        <div class="small" id="dbInfo"></div>
+      </div>
+      <div class="card">
+        <h3>Swagger UI</h3>
+        <div id="swaggerBadge" class="badge warn">…</div>
+        <div class="small"><a href="/swagger-ui/index.html">/swagger-ui/index.html</a></div>
+      </div>
+      <div class="card">
+        <h3>Metrics</h3>
+        <div id="metricsBadge" class="badge warn">…</div>
+        <div class="small"><a href="/actuator/prometheus">/actuator/prometheus</a></div>
+      </div>
+    </div>
+
+    <h2>Highlights</h2>
+    <ul>
+      <li>Verbrauch = <code>max(value) − min(value)</code> (DB‑seitige Aggregation)</li>
+      <li>Rundung konfigurierbar über typisierte Properties (Java‑Record)</li>
+      <li>Indizes/Constraints für Datenqualität &amp; Performance</li>
+      <li>Landing‑Page, Swagger, Health sofort verfügbar</li>
+    </ul>
+
+    <h2>Beispiele</h2>
+    <p>Readings ingest (cURL):</p>
+    <pre><code>curl -X POST http://localhost:8081/api/readings \ 
+ -H 'Content-Type: application/json' \ 
+ -d '[{"deviceId":"&lt;UUID&gt;","readingTime":"2025-09-12T10:00:00Z","value":123.45,"unit":"kWh","source":"LoRa"}]'</code></pre>
+
+    <p>Billing ausführen:</p>
+    <pre><code>curl -X POST "http://localhost:8081/api/billing/run?contractId=&lt;CONTRACT_UUID&gt;&from=2025-09-01&to=2025-09-30"</code></pre>
+
+    <h2>Interaktiver cURL‑Generator</h2>
+    <p class="muted">Basis‑URL wird automatisch gesetzt: <code id="baseUrl"></code>. Befehle aktualisieren sich live bei Eingaben.</p>
+
+    <div class="row">
+      <h3 style="margin:.6rem 0">Readings ingest</h3>
+      <div class="grp"><label>Device ID (UUID)</label><input id="devId" value="62eb5088-15b6-4128-b7fe-44690e42099d" /></div>
+      <div class="grp"><label>Reading Time (ISO)</label><input id="time" value="2025-09-30T10:00:00Z" /></div>
+      <div class="grp"><label>Value</label><input id="val" type="number" step="0.000001" value="170.000000" /></div>
+      <div class="grp"><label>Unit</label><input id="unit" value="kWh" /></div>
+      <div class="grp"><label>Source</label><input id="source" value="LoRa" /></div>
+      <div class="row">
+        <button class="btn" onclick="execIngest()">Ausführen</button>
+      </div>
+      <pre><code id="ingestCmd"></code></pre>
+      <pre id="ingestResult" class="muted" style="display:none"></pre>
+    </div>
+
+    <div class="row">
+      <h3 style="margin:.6rem 0">Billing</h3>
+      <div class="grp"><label>Contract ID (UUID)</label><input id="contractId" value="f70ca20d-a2f3-4d87-ab64-482fe327d4c4" /></div>
+      <div class="grp"><label>From (yyyy-mm-dd)</label><input id="from" value="2025-09-01" /></div>
+      <div class="grp"><label>To (yyyy-mm-dd)</label><input id="to" value="2025-09-30" /></div>
+      <div class="row">
+        <button class="btn" onclick="execBilling()">Ausführen</button>
+      </div>
+      <pre><code id="billCmd"></code></pre>
+      <pre id="billResult" class="muted" style="display:none"></pre>
+    </div>
+
+    <div class="row">
+      <h3 style="margin:.6rem 0">Readings auflisten</h3>
+      <div class="grp"><label>Device ID (UUID)</label><input id="listDevId" value="62eb5088-15b6-4128-b7fe-44690e42099d" /></div>
+      <div class="row">
+        <button class="btn" onclick="execList()">Liste abrufen</button>
+      </div>
+      <pre id="listResult" class="muted" style="display:none"></pre>
+    </div>
+
+    <p style="margin-top:2rem;color:#666;font-size:0.9rem;">&copy; 2025 Duc Thanh Nguyen</p>
+  </div>
+  <script>
+    const byId = (id) => document.getElementById(id);
+    function shellEscape(s){
+      // naive escape for double quotes in JSON
+      return String(s||'').replaceAll('"','\\"');
+    }
+    function isoNowMinus(minutes){
+      const d = new Date(Date.now() - minutes*60*1000);
+      return d.toISOString().replace(/\.\d{3}Z$/, 'Z');
+    }
+    function coercePastIso(val){
+      if (!val) return isoNowMinus(5);
+      const t = new Date(val).getTime();
+      if (isNaN(t)) return isoNowMinus(5);
+      if (t > Date.now()) return isoNowMinus(5);
+      return val;
+    }
+    function updateCmds(){
+      const base = window.location.origin;
+      byId('baseUrl').textContent = base;
+      const devId = byId('devId').value || '<UUID>';
+      const coercedTime = coercePastIso(byId('time').value);
+      if (byId('time').value !== coercedTime) byId('time').value = coercedTime;
+      const time = coercedTime;
+      const val = byId('val').value || '170.0';
+      const unit = byId('unit').value || 'kWh';
+      const source = byId('source').value || 'LoRa';
+      const ingestJson = `[{
+  \"deviceId\":\"${shellEscape(devId)}\",
+  \"readingTime\":\"${shellEscape(time)}\",
+  \"value\":${val},
+  \"unit\":\"${shellEscape(unit)}\",
+  \"source\":\"${shellEscape(source)}\"
+}]`;
+      const ingest = `curl -X POST ${base}/api/readings \\\n -H 'Content-Type: application/json' \\\n -d '${ingestJson}'`;
+      byId('ingestCmd').textContent = ingest;
+
+      const cId = byId('contractId').value || '<CONTRACT_UUID>';
+      const from = byId('from').value || '2025-09-01';
+      const to = byId('to').value || '2025-09-30';
+      const bill = `curl -X POST \"${base}/api/billing/run?contractId=${cId}&from=${from}&to=${to}\"`;
+      byId('billCmd').textContent = bill;
+    }
+    // Demo‑Seed via Flyway; kein API‑Seed mehr nötig
+    // Kopier-/Aktualisieren-Buttons entfernt; Befehle aktualisieren automatisch
+    async function execIngest(){
+      updateCmds();
+      const base = window.location.origin;
+      const devId = byId('devId').value;
+      const time = coercePastIso(byId('time').value);
+      const val = byId('val').value || '170.0';
+      const unit = byId('unit').value || 'kWh';
+      const source = byId('source').value || 'LoRa';
+      const payload = [{ deviceId: devId, readingTime: time, value: Number(val), unit, source }];
+      const resEl = byId('ingestResult');
+      resEl.style.display='block';
+      try{
+        const r = await fetch(`${base}/api/readings`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+        const text = await r.text();
+        resEl.textContent = `HTTP ${r.status}\n` + prettyMaybeJson(text);
+      }catch(e){ resEl.textContent = String(e); }
+    }
+    async function execBilling(){
+      updateCmds();
+      const base = window.location.origin;
+      const cId = byId('contractId').value;
+      const from = byId('from').value || '2025-09-01';
+      const to = byId('to').value || '2025-09-30';
+      const resEl = byId('billResult');
+      resEl.style.display='block';
+      try{
+        const r = await fetch(`${base}/api/billing/run?contractId=${encodeURIComponent(cId)}&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`, { method:'POST' });
+        const text = await r.text();
+        resEl.textContent = `HTTP ${r.status}\n` + prettyMaybeJson(text);
+      }catch(e){ resEl.textContent = String(e); }
+    }
+    async function execList(){
+      const base = window.location.origin;
+      const devId = byId('listDevId').value;
+      const resEl = byId('listResult');
+      resEl.style.display='block';
+      try{
+        const r = await fetch(`${base}/api/readings?deviceId=${encodeURIComponent(devId)}`);
+        const text = await r.text();
+        resEl.textContent = `HTTP ${r.status}\n` + prettyMaybeJson(text);
+      }catch(e){ resEl.textContent = String(e); }
+    }
+    function prettyMaybeJson(text){
+      try{ return JSON.stringify(JSON.parse(text), null, 2); }catch(_){ return text; }
+    }
+    function setBadge(elId, status, infoElId, info){
+      const el = byId(elId); const infoEl = infoElId && byId(infoElId);
+      if (!el) return;
+      el.textContent = status;
+      el.classList.remove('ok','bad','warn');
+      if (status === 'UP' || status === 'OK') el.classList.add('ok');
+      else if (status === 'DOWN' || status === 'ERROR') el.classList.add('bad');
+      else el.classList.add('warn');
+      if (infoEl) infoEl.textContent = info || '';
+    }
+    async function checkDashboard(){
+      const base = window.location.origin;
+      byId('dashBase').textContent = base;
+      // Health
+      try{
+        const r = await fetch(base + '/actuator/health');
+        const json = await r.json();
+        const status = (json.status || json?.components?.overall?.status || 'UNKNOWN');
+        setBadge('healthBadge', status, 'healthInfo', status === 'UP' ? 'OK' : JSON.stringify(json));
+        // DB status (variiert je nach Health Struktur)
+        let dbStatus = json?.components?.db?.status || json?.details?.db?.status || 'UNKNOWN';
+        let dbInfo = json?.components?.db?.details?.database || json?.details?.db?.database || '';
+        setBadge('dbBadge', dbStatus, 'dbInfo', dbInfo);
+      }catch(e){ setBadge('healthBadge','ERROR','healthInfo', String(e)); setBadge('dbBadge','ERROR','dbInfo',''); }
+      // Swagger
+      try{
+        const r = await fetch(base + '/swagger-ui/index.html', { method:'GET' });
+        setBadge('swaggerBadge', r.ok ? 'OK' : 'ERROR');
+      }catch(e){ setBadge('swaggerBadge','ERROR'); }
+      // Metrics (Prometheus scrape endpoint)
+      try{
+        const r = await fetch(base + '/actuator/prometheus');
+        setBadge('metricsBadge', r.ok ? 'OK' : 'ERROR');
+      }catch(e){ setBadge('metricsBadge','ERROR'); }
+    }
+    // init
+    updateCmds();
+    checkDashboard();
+    setInterval(checkDashboard, 15000);
+    // Live-Aktualisierung: Eingaben triggern Update der cURL-Beispiele
+    ['devId','time','val','unit','source','contractId','from','to'].forEach(id=>{
+      const el = byId(id); if (el) el.addEventListener('input', updateCmds);
+      if (el) el.addEventListener('change', updateCmds);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+# OS / Editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.history/
+
+# IDEs
+.idea/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+.vscode/
+
+# Maven / Build
+target/
+**/target/
+dependency-reduced-pom.xml
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+**/maven-status/
+**/maven-archiver/
+
+# Logs & PIDs
+*.log
+*.out
+*.pid
+.demo-app.log
+.demo-app.pid
+
+# Env / Secrets
+.env
+.env.*
+
+# Docker
+docker-data/
+

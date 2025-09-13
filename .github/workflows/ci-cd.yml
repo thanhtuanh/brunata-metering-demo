@@ -1,0 +1,115 @@
+name: CI / CD
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    name: Build & Test (JDK 21)
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: metering
+          POSTGRES_USER: metering
+          POSTGRES_PASSWORD: metering
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U metering -d metering"
+          --health-interval 10s --health-timeout 5s --health-retries 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Show tool versions
+        run: |
+          java -version
+          mvn -v
+
+      - name: Wait for Postgres
+        run: |
+          for i in {1..30}; do
+            if pg_isready -h 127.0.0.1 -p 5432 -U metering -d metering; then
+              echo "Postgres is ready"; break; fi; sleep 2; done
+
+      - name: Build & Test (mvn verify)
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://127.0.0.1:5432/metering
+          SPRING_DATASOURCE_USERNAME: metering
+          SPRING_DATASOURCE_PASSWORD: metering
+        run: |
+          mvn -B -U -DskipTests=false clean verify
+
+      - name: Upload test reports (Surefire)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            **/target/surefire-reports/*
+            **/target/failsafe-reports/*
+          if-no-files-found: warn
+
+      - name: CI Summary
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "# Build & Test Zusammenfassung" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Commit: $GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Branch: ${GITHUB_REF#refs/heads/}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Java: $(java -version 2>&1 | head -n1)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Maven: $(mvn -v | head -n1)" >> "$GITHUB_STEP_SUMMARY"
+
+          # Testsummen aus Surefire/Failsafe Reports ermitteln
+          mapfile -t FILES < <(find . -type f \( -path "*/target/surefire-reports/*.xml" -o -path "*/target/failsafe-reports/*.xml" \) 2>/dev/null || true)
+          tests=0; failures=0; errors=0; skipped=0
+          if [ ${#FILES[@]} -gt 0 ]; then
+            for f in "${FILES[@]}"; do
+              # Extrahiere Attribute aus <testsuite ...>
+              line=$(grep -m1 "<testsuite" "$f" || true)
+              [ -z "$line" ] && continue
+              t=$(echo "$line" | sed -n 's/.*tests="\([0-9]\+\)".*/\1/p')
+              f1=$(echo "$line" | sed -n 's/.*failures="\([0-9]\+\)".*/\1/p')
+              e=$(echo "$line" | sed -n 's/.*errors="\([0-9]\+\)".*/\1/p')
+              s=$(echo "$line" | sed -n 's/.*skipped="\([0-9]\+\)".*/\1/p')
+              tests=$((tests + ${t:-0}))
+              failures=$((failures + ${f1:-0}))
+              errors=$((errors + ${e:-0}))
+              skipped=$((skipped + ${s:-0}))
+            done
+          fi
+
+          status="✅ Erfolgreich"
+          if [ "$failures" -gt 0 ] || [ "$errors" -gt 0 ]; then
+            status="❌ Fehler"
+          fi
+
+          echo "- Status: $status" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Tests gesamt: $tests" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Failures: $failures" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Errors: $errors" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Skipped: $skipped" >> "$GITHUB_STEP_SUMMARY"
+
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Artefakte: Testreports wurden als Artifact 'test-reports' hochgeladen." >> "$GITHUB_STEP_SUMMARY"
+
