@@ -29,4 +29,4 @@ COPY --from=build /workspace/app/target/app-0.1.0.jar /app/app.jar
 
 # Render provides PORT and DATABASE_URL. Transform DATABASE_URL to JDBC on start.
 EXPOSE 8080
-CMD ["bash","-lc","export SPRING_DATASOURCE_URL=$(echo \"$DATABASE_URL\" | sed -E 's/^postgres:/jdbc:postgresql:/'); exec java $JAVA_OPTS -jar /app/app.jar --server.port=$PORT"]
+CMD ["bash","-lc","JDBC_URL=$(echo \"$DATABASE_URL\" | sed -E 's#^postgres://#jdbc:postgresql://#; s#//[^/@]+@#//#'); exec java $JAVA_OPTS -jar /app/app.jar --server.port=$PORT --spring.datasource.url=\"$JDBC_URL\""]
