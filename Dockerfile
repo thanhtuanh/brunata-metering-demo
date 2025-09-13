@@ -33,20 +33,39 @@ RUN set -eux; \
 #!/bin/sh
 set -eu
 echo "Original DATABASE_URL=${DATABASE_URL-}"
+
+JDBC_URL=""
 if [ -n "${DATABASE_URL-}" ]; then
   JDBC_URL=$(printf %s "$DATABASE_URL" \
     | sed -E 's#^postgres(ql)?://#jdbc:postgresql://#; s#//[^/@]+@#//#')
-  case "$JDBC_URL" in
-    *\?*) : ;;
-    *) JDBC_URL="${JDBC_URL}?sslmode=require" ;;
-  esac
-  case "$JDBC_URL" in
-    *sslmode=*) : ;;
-    *\?*) JDBC_URL="${JDBC_URL}&sslmode=require" ;;
-  esac
+fi
+
+# Fallback: wenn der Host nicht extern aussieht, aus DB_HOST/DB_PORT/DB_NAME bauen
+case "$JDBC_URL" in
+  *render.com*|*renderusercontent.com*) : ;; # extern ok
+  *)
+    if [ -n "${DB_HOST-}" ] && [ -n "${DB_PORT-}" ] && [ -n "${DB_NAME-}" ]; then
+      JDBC_URL="jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}"
+    fi
+  ;;
+esac
+
+# sslmode=require anhängen, falls fehlend
+case "${JDBC_URL:-}" in
+  *\?*) : ;;
+  "") : ;; # leer: nichts tun
+  *) JDBC_URL="${JDBC_URL}?sslmode=require" ;;
+esac
+case "${JDBC_URL:-}" in
+  *sslmode=*) : ;;
+  *\?*) JDBC_URL="${JDBC_URL}&sslmode=require" ;;
+esac
+
+if [ -n "${JDBC_URL:-}" ]; then
   export SPRING_DATASOURCE_URL="$JDBC_URL"
   echo "Using JDBC_URL=$JDBC_URL"
 fi
+
 exec java $JAVA_OPTS -jar /app/app.jar --server.port="${PORT:-8080}"
 SH
 RUN chmod +x /app/entrypoint.sh
