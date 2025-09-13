@@ -22,10 +22,22 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Seed-Controller für Demo-Daten.
+ *
+ * Endpunkte:
+ * - POST/GET `/api/demo/seed` erzeugt einen Beispiel-Tarif, ein Gerät, einen Vertrag
+ *   und zwei Messwerte (früher/später), damit andere Flows (Billing, Listing) getestet werden können.
+ *
+ * Hinweise:
+ * - Werte sind bewusst deterministisch/überschaubar gewählt (kWh, 0.25 EUR/kWh),
+ *   damit Berechnungen im Billing-Service nachvollziehbar sind.
+ */
 @RestController
 @RequestMapping("/api/demo")
 public class DemoSeedController {
 
+    // Repositories als Datenzugriffsschicht (per Spring injiziert)
     private final DeviceRepository deviceRepo;
     private final TariffRepository tariffRepo;
     private final ContractRepository contractRepo;
@@ -44,18 +56,21 @@ public class DemoSeedController {
     @PostMapping("/seed")
     @Transactional
     public Map<String, Object> seed() {
+        // 1) Beispiel-Tarif anlegen (0.25 EUR/kWh)
         Tariff t = new Tariff();
         t.setName("Standard");
         t.setPricePerUnit(new BigDecimal("0.2500"));
         t.setUnit("kWh");
         t = tariffRepo.save(t);
 
+        // 2) Demo-Gerät erzeugen (HEAT, zufällige Seriennummer)
         Device d = new Device();
         d.setType("HEAT");
         d.setSerialNo("DEMO-" + UUID.randomUUID().toString().substring(0, 8));
         d.setLocation("Demo");
         d = deviceRepo.save(d);
 
+        // 3) Vertrag mit Startdatum heute und verknüpftem Tarif
         Contract c = new Contract();
         c.setCustomerName("Musterkunde");
         c.setDeviceId(d.getId());
@@ -63,9 +78,11 @@ public class DemoSeedController {
         c.setTariff(t);
         c = contractRepo.save(c);
 
+        // 4) Zwei Messzeitpunkte im aktuellen Monat (10. und 25. Tag, 00:00 UTC)
         Instant r1t = LocalDate.now().withDayOfMonth(10).atStartOfDay().toInstant(ZoneOffset.UTC);
         Instant r2t = LocalDate.now().withDayOfMonth(25).atStartOfDay().toInstant(ZoneOffset.UTC);
 
+        // 5) Erster Messwert: 100.000000 kWh
         MeterReading r1 = new MeterReading();
         r1.setDeviceId(d.getId());
         r1.setReadingTime(r1t);
@@ -74,6 +91,7 @@ public class DemoSeedController {
         r1.setSource("Demo");
         r1 = readingRepo.save(r1);
 
+        // 6) Zweiter Messwert: 160.500000 kWh (ergibt Verbrauch 60.5 kWh)
         MeterReading r2 = new MeterReading();
         r2.setDeviceId(d.getId());
         r2.setReadingTime(r2t);
@@ -82,6 +100,7 @@ public class DemoSeedController {
         r2.setSource("Demo");
         r2 = readingRepo.save(r2);
 
+        // 7) IDs zur einfachen Weiterverwendung zurückgeben (z. B. für API-Calls im Tutorial)
         Map<String, Object> res = new HashMap<>();
         res.put("deviceId", d.getId());
         res.put("contractId", c.getId());
@@ -90,7 +109,9 @@ public class DemoSeedController {
         return res;
     }
 
-    // Fallback: erlaubt auch GET /api/demo/seed (z. B. für einfache Browser-Tests)
+    /**
+     * Fallback: erlaubt GET /api/demo/seed (praktisch für Browser-Aufruf ohne Tooling).
+     */
     @GetMapping("/seed")
     @Transactional
     public Map<String, Object> seedGet() {

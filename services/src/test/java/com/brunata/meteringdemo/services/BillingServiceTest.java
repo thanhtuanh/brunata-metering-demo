@@ -15,7 +15,6 @@ import org.mockito.ArgumentCaptor;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -24,6 +23,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 class BillingServiceTest {
+    /**
+     * Tests für den BillingService:
+     * - Betrag aus Verbrauch (DB-Aggregat) und Tarif berechnen (Rundung)
+     * - Ungültige Zeiträume -> ValidationException
+     * - Keine Messwerte im Zeitraum -> ValidationException
+     */
 
     private ContractRepository contractRepo;
     private MeterReadingRepository readingRepo;

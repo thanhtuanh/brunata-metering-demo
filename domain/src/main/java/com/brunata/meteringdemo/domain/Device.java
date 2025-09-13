@@ -4,10 +4,19 @@ import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.UUID;
 
+/**
+ * Messgerät (z. B. Wärmemengenzähler, Stromzähler).
+ *
+ * Eigenschaften:
+ * - Eindeutige Seriennummer (Unique-Constraint)
+ * - Letzter Kontaktzeitpunkt `lastSeenAt` zur Erkennung von Offline-Geräten
+ * - Einfache Statuskennzeichnung (Demo)
+ */
 @Entity
 public class Device {
     @Id
     private UUID id;
+    // Gerätetyp (frei vergebener String, z. B. "HEAT")
     private String type;
     @Column(unique = true, nullable = false)
     private String serialNo;

@@ -23,6 +23,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class BillingControllerTest {
+    /**
+     * Tests für den Billing-Controller:
+     * - Erfolgreicher Durchlauf liefert Invoice-JSON
+     * - ValidationException wird korrekt in API-Error gemappt
+     */
 
     private MockMvc mvc;
 

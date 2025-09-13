@@ -40,3 +40,12 @@ Details für Entwickler: siehe `readme-dev.md`.
 - Anleitung und Blueprint: `docs/render-deploy.md`, `render.yaml`
 
 Hinweis: Falls keine externen Mock‑Services für Jira/ERP verfügbar sind, kann der Sync deaktiviert werden (Env‑Var `INTEGRATION_ENABLED=false`).
+
+## 6) Bezug zur Stellenbeschreibung (Java Backend)
+- Saubere Schichten: Klare Trennung API → Service → Persistence mit Spring Boot 3.3.
+- Stabiler Datenlayer: PostgreSQL 16, JPA, Flyway‑Migrationen, sinnvolle Indizes und Constraints.
+- Fachlogik nachvollziehbar: Abrechnung mit DB‑Aggregation (min/max), Idempotenz, Transaktionen, validierte Eingaben.
+- Integrationserfahrung: Geplante Jobs (Scheduling), resiliente HTTP‑Aufrufe via WebClient (Timeout, Retry, Budget), Konfiguration via `@ConfigurationProperties`.
+- Moderne Java‑Basis: Java 21, Records für Config‑Typen, reaktive Pipelines, Option für virtuelle Threads.
+- Qualität & Tests: Unit/Controller‑Tests, präzise Validations, OpenAPI/Swagger.
+- Dev‑Ergonomie: Skripte (`start-demo.sh`), Docker‑Compose für DB, ausführliche README/Tutorials.

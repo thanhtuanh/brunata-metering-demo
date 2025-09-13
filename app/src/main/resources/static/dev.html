@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Brunata Metering Demo – Developer Guide</title>
+  <style>
+    :root{ --line:#e5e7eb; --ink:#0e1116; --muted:#6b7280; --brand:#0b5afa; --code:#f7f7f9; }
+    html, body { margin:0; padding:0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif; color:var(--ink); background:#ffffff; }
+    .wrap { max-width: 980px; margin: 2rem auto; padding: 0 1.2rem; }
+    header h1 { margin: 0; font-size: 1.9rem; letter-spacing:.2px; }
+    header p { margin:.4rem 0 0; color:var(--muted); }
+    a { color:var(--brand); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    h2 { margin: 1.6rem 0 .6rem; font-size: 1.35rem; }
+    h3 { margin: 1.2rem 0 .5rem; font-size: 1.1rem; }
+    code { background:var(--code); padding:2px 6px; border-radius:4px; }
+    pre { background:var(--code); padding: 12px 14px; border-radius: 10px; overflow:auto; border:1px solid var(--line); }
+    ul { margin:.4rem 0 .8rem 1.2rem; }
+    .muted { color:var(--muted); }
+  </style>
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="data:," />
+  <meta name="description" content="Developer Guide für die Brunata Metering Demo" />
+  <meta property="og:title" content="Brunata Metering Demo – Developer Guide" />
+  <meta property="og:description" content="Setup, Architektur, DB, APIs, Tests" />
+  <meta property="og:type" content="article" />
+  <link rel="canonical" href="/dev.html" />
+  <script>
+    // kleiner Helfer: ersetzt <port> in Beispielen durch aktuelle Port/Origin
+    function injectOrigin(){
+      const origin = window.location.origin;
+      document.querySelectorAll('[data-origin]').forEach(el=>{
+        el.textContent = el.textContent.replaceAll('http://localhost:<port>', origin);
+      });
+    }
+    window.addEventListener('DOMContentLoaded', injectOrigin);
+  </script>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Brunata Metering Demo – Developer Guide</h1>
+      <p class="muted">Kompakte Doku für Setup, Architektur, Datenmodell, APIs, Tests und typische Dev‑Workflows. Zurück zur <a href="/">Landing‑Page</a>.</p>
+    </header>
+
+    <h2>Schnellstart</h2>
+    <ul>
+      <li>Voraussetzungen: Docker, Docker Compose, Java 21, Maven 3.9+</li>
+      <li>Start (DB + App, wählt 8080..8085 automatisch):</li>
+    </ul>
+    <pre><code>./start-demo.sh</code></pre>
+    <ul>
+      <li>Health: <code>http://localhost:&lt;port&gt;/actuator/health</code></li>
+      <li>Swagger UI: <code>http://localhost:&lt;port&gt;/swagger-ui/index.html</code></li>
+      <li>Landing Page: <code>http://localhost:&lt;port&gt;/</code></li>
+      <li>Prometheus: <code>http://localhost:&lt;port&gt;/actuator/prometheus</code></li>
+    </ul>
+    <p class="muted">Demo‑Daten werden automatisch per Flyway angelegt (deterministische UUIDs). Keine manuelle Seed‑Route erforderlich.</p>
+
+    <h2>Architektur &amp; Module</h2>
+    <ul>
+      <li><code>common</code>: Fehler-/DTO‑Basistypen, Validation, REST‑Handler</li>
+      <li><code>domain</code>: JPA‑Entities (Device, MeterReading, Tariff, Contract, Invoice)</li>
+      <li><code>persistence</code>: Spring Data JPA Repositories (Queries + Aggregationen)</li>
+      <li><code>services</code>: Business‑Logik (Readings, Billing, Properties/Config)</li>
+      <li><code>api</code>: REST‑Controller (WebMVC), OpenAPI</li>
+      <li><code>app</code>: Boot‑App, Flyway, Actuator, Static UI, Prometheus</li>
+    </ul>
+    <p>Schichten: API → Services → Persistence; Entities leben in <code>domain</code>, Repositories in <code>persistence</code>.</p>
+
+    <h3>Monolith vs. Microservices</h3>
+    <ul>
+      <li>Modularer Monolith: ein deploybares Artefakt, klare Modulgrenzen</li>
+      <li>Gründe: schnelle Iteration, einfaches Deployment, transaktionale Konsistenz</li>
+      <li>Ready‑to‑split: Module so geschnitten, dass spätere Service‑Extraktion möglich</li>
+    </ul>
+
+    <h3>Migrationspfad zu Microservices (Kurzplan)</h3>
+    <ol>
+      <li>Boundaries: <code>readings</code>, <code>billing</code>, <code>contracts</code>; DTOs/OpenAPI; kein Entity‑Sharing</li>
+      <li>Daten trennen: eigene Schemas/DBs; Read‑Model/Views; Outbox/CDC für Events</li>
+      <li>Kommunikation: REST mit Timeouts/Retry/Circuit‑Breaker; Events (Kafka/RabbitMQ)</li>
+      <li>Observability: Gateway, Tracing (OpenTelemetry), strukturierte Logs, Dashboards</li>
+      <li>Delivery: Container je Service, Pipelines, IaC (Helm/K8s oder Cloud)</li>
+    </ol>
+
+    <h2>Datenbank &amp; Migrationen</h2>
+    <ul>
+      <li>PostgreSQL 16 (Docker Compose <code>db</code>)</li>
+      <li>Flyway SQL unter <code>app/src/main/resources/db/migration</code>:</li>
+    </ul>
+    <ul>
+      <li><code>V1__init.sql</code>: Basis‑Tabellen Device, MeterReading</li>
+      <li><code>V2__billing.sql</code>: Tariff, Contract, Invoice</li>
+      <li><code>V3__db_constraints_and_indexes.sql</code>: Constraints &amp; Indizes</li>
+      <li><code>V4__invoice_constraints.sql</code>: weitere Constraints</li>
+      <li><code>V5__demo_seed.sql</code>: Demo‑Seed mit festen UUIDs</li>
+      <li><code>V6__demo_seed_fix_past.sql</code>: Seed‑Zeitpunkte sicher in der Vergangenheit</li>
+      <li><code>V7__device_indexes.sql</code>: Indizes für Offline‑Checks</li>
+    </ul>
+    <p>Seed‑IDs: Device <code>62eb5088-15b6-4128-b7fe-44690e42099d</code>, Contract <code>f70ca20d-a2f3-4d87-ab64-482fe327d4c4</code>, Tariff <code>00000000-0000-0000-0000-000000000001</code></p>
+
+    <h2>API Endpunkte (Auswahl)</h2>
+    <ul>
+      <li><code>POST /api/readings</code> – Liste von Messwerten speichern</li>
+      <li><code>GET /api/readings?deviceId=UUID</code> – Messwerte eines Geräts</li>
+      <li><code>POST /api/billing/run?contractId=UUID&amp;from=YYYY-MM-DD&amp;to=YYYY-MM-DD</code> – Rechnung berechnen</li>
+    </ul>
+    <p>OpenAPI/Swagger: <a href="/swagger-ui/index.html">/swagger-ui/index.html</a></p>
+
+    <h2>Validierung &amp; Fehlerbehandlung</h2>
+    <ul>
+      <li>DTO‑Validierung: <code>ReadingDto</code> (<code>@PastOrPresent</code>, <code>@PositiveOrZero</code>, <code>@NotBlank</code>)</li>
+      <li>Domänenregeln: zeitliche/werte‑Monotonie im Service</li>
+      <li>Fehlerformat: 400 für Validierungs-/Domänenfehler, 500 für unerwartete Fehler (ProblemDetail)</li>
+    </ul>
+
+    <h2>Beispiele (cURL)</h2>
+    <h3>Readings ingest</h3>
+    <pre data-origin><code>curl -X POST http://localhost:&lt;port&gt;/api/readings \
+ -H 'Content-Type: application/json' \
+ -d '[{"deviceId":"62eb5088-15b6-4128-b7fe-44690e42099d","readingTime":"&lt;ISO_PAST&gt;","value":170.0,"unit":"kWh","source":"LoRa"}]'</code></pre>
+    <h3>Billing</h3>
+    <pre data-origin><code>curl -X POST "http://localhost:&lt;port&gt;/api/billing/run?contractId=f70ca20d-a2f3-4d87-ab64-482fe327d4c4&amp;from=2025-09-01&amp;to=2025-09-30"</code></pre>
+
+    <h2>Tests</h2>
+    <ul>
+      <li>Unit/Controller‑Tests in Modulen <code>api</code>, <code>services</code>, <code>app</code></li>
+      <li>Testcontainers vorbereitet; Startscript überspringt Tests für schnelleren lokalen Start</li>
+      <li>Schneller Build ohne Tests: <code>mvn -q -U -Dmaven.test.skip=true clean install</code></li>
+    </ul>
+
+    <h2>Entwicklungstipps</h2>
+    <ul>
+      <li>Portwahl automatisch (8080..8085)</li>
+      <li>Health‑Details aktiv (DB/Komponenten)</li>
+      <li>Prometheus aktiv: <code>/actuator/prometheus</code></li>
+      <li>Flyway‑Repair bei Checksummen: <code>mvn -q -pl app flyway:repair</code></li>
+      <li>Neustart „clean“: <code>docker compose down -v &amp;&amp; docker compose up -d db &amp;&amp; ./start-demo.sh</code></li>
+    </ul>
+
+    <h3>Integrationsjobs (SyncService)</h3>
+    <ul>
+      <li>Offline‑Geräte DB‑seitig selektiert, Meldung an Jira‑Mock reaktiv</li>
+      <li>Pipeline: <code>flatMap</code> mit <code>concurrency=4</code>, 5s Timeout, Backoff‑Retry (2x, nur 5xx)</li>
+      <li>WebClient‑Timeouts zentral konfiguriert</li>
+      <li>Indizes beschleunigen <code>last_seen_at</code>‑Filter</li>
+    </ul>
+
+    <h3>Fehlerbehandlung</h3>
+    <ul>
+      <li>Zentrale REST‑Handler (ProblemDetail), Mapping 400/500</li>
+      <li>API‑nahe Parameterfehler im API‑Layer</li>
+    </ul>
+
+    <h2>Beiträge &amp; Code‑Style</h2>
+    <ul>
+      <li>Kleine, fokussierte Changes pro Commit/PR</li>
+      <li>Keep it simple; klare Service/Repository‑Schnitte</li>
+      <li>Formatierung am bestehenden Stil orientieren</li>
+    </ul>
+
+    <p class="muted">Quellcode im Repo sowie weiterführende Hinweise: <a href="https://github.com/thanhtuanh/brunata-metering-demo" target="_blank" rel="noopener">GitHub</a>.</p>
+    <p class="muted"><a href="/">Zurück zur Landing‑Page</a></p>
+  </div>
+</body>
+</html>
+

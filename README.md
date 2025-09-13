@@ -31,6 +31,33 @@ Dokumentation
 - Migrations: ausschließlich via Flyway (`V*_*.sql`), keine nachträglichen Änderungen angewandter Migrationen
 - Observability: Actuator (Health, Metrics)
 
+### Architekturdiagramm
+
+```mermaid
+graph LR
+  subgraph App[app (Spring Boot Runtime)]
+    A[api\nREST Controller] --> B[services\nBusiness Logic]
+    B --> C[persistence\nSpring Data Repositories]
+    B -.uses DTO/Validation.-> A
+    A -.errors.-> E[common\nApiError, Exception Handling]
+    B -.errors.-> E
+    B -.uses entities.-> D[domain\nJPA Entities]
+    C -.maps entities.-> D
+  end
+
+  C --> DB[(PostgreSQL)]
+
+  %% External integrations (mocked)
+  B --> WC[WebClient]
+  WC --> J[Jira]
+  WC --> ERP[ERP]
+
+  %% Tooling inside app
+  App --> Flyway[Flyway Migrations]
+  App --> Actuator[Actuator Health/Metrics]
+  A <-- OpenAPI --> Swagger[Swagger UI]
+```
+
 ### Architekturmodell: Modularer Monolith (Ready‑to‑Split)
 - Deployt wird ein einzelnes Spring‑Boot‑Artefakt (`app`).
 - Saubere Modulgrenzen (Maven): `api`, `services`, `persistence`, `domain`, `common`.

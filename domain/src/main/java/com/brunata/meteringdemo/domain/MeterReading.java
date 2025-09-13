@@ -5,6 +5,14 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
+/**
+ * Zählerstandsmessung eines Geräts mit Zeitstempel.
+ *
+ * Modellierungsentscheidungen:
+ * - `value` als BigDecimal(18,6) für genaue Verbrauchsdifferenzen (kWh etc.)
+ * - `readingTime` in UTC (`Instant`) für eindeutige Zeitvergleiche
+ * - `unit`/`source` zur Nachvollziehbarkeit der Datenherkunft
+ */
 @Entity
 public class MeterReading {
     @Id
