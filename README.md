@@ -1,9 +1,10 @@
-# Brunata Metering Demo
+# BRUNATA-METRONA – Metering Demo (inoffiziell)
 
 Java-Backend-Demo für Zählerdaten und Abrechnung – mit klarer Modularchitektur, Flyway-Migrationen und schnellen Dev-Skripten.
 Validiert typische Metering-Flows (Geräte/Readings → Abrechnung) mit klaren Schichten (API→Service→Persistence) und robusten Migrationen (Flyway). Health, Swagger und Prometheus sind out-of-the-box aktiv, wodurch Betrieb & Diagnose sofort möglich sind.
 
 Live-Demo (Render): https://brunata-metering-demo.onrender.com
+Hinweis: Diese Demo ist inoffiziell und steht in keiner Verbindung zur BRUNATA‑METRONA GmbH & Co. KG. Es werden ausschließlich synthetische Demodaten verwendet.
 
 OpenAPI UI: https://brunata-metering-demo.onrender.com/swagger-ui/index.html
 OpenAPI JSON: https://brunata-metering-demo.onrender.com/v3/api-docs
