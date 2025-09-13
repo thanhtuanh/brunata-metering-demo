@@ -15,6 +15,11 @@ services:
         fromDatabase:
           name: metering-db
           property: connectionString
+      # Idempotent schema migrations; DB kann kurz brauchen
+      - key: SPRING_FLYWAY_CONNECT_RETRIES
+        value: "60"
+      - key: SPRING_DATASOURCE_HIKARI_INITIALIZATION_FAIL_TIMEOUT
+        value: "60000"
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
           name: metering-db
@@ -27,5 +32,8 @@ services:
         value: validate
       - key: SERVER_FORWARD_HEADERS_STRATEGY
         value: framework
+      # Externe Mock-Integrationen (Jira/ERP) in Prod deaktivieren
+      - key: INTEGRATION_ENABLED
+        value: "false"
     healthCheckPath: /actuator/health
     autoDeploy: true

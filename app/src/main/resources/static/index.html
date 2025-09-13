@@ -82,7 +82,13 @@
     </ul>
 
     <h2>Dashboard</h2>
-    <p class="muted">Basis‑URL: <code id="dashBase"></code> · <button class="btn secondary" onclick="checkDashboard()">Neu prüfen</button></p>
+    <p class="muted">
+      Basis‑URL:
+      <input id="baseInput" placeholder="https://brunata-metering-demo.onrender.com" style="padding:.35rem .5rem; border:1px solid var(--line); border-radius:6px; min-width:340px; font-size:.9rem;"/>
+      <button class="btn secondary" onclick="saveBase()">Speichern</button>
+      <button class="btn secondary" style="margin-left:.3rem;background:#374151" onclick="resetBase()">Zurücksetzen</button>
+      <span style="margin-left:.5rem">Aktuell: <code id="dashBase"></code></span>
+    </p>
     <div class="grid">
       <div class="card">
         <h3>Health</h3>
@@ -165,6 +171,24 @@
   </div>
   <script>
     const byId = (id) => document.getElementById(id);
+    function loadBase(){
+      const stored = localStorage.getItem('demo.baseUrl');
+      return stored && stored.trim().length > 0 ? stored.trim() : window.location.origin;
+    }
+    function getBase(){
+      const v = (byId('baseInput')?.value || '').trim();
+      return v.length > 0 ? v : window.location.origin;
+    }
+    function saveBase(){
+      const v = (byId('baseInput')?.value || '').trim();
+      if (v.length > 0) localStorage.setItem('demo.baseUrl', v); else localStorage.removeItem('demo.baseUrl');
+      updateCmds(); checkDashboard();
+    }
+    function resetBase(){
+      localStorage.removeItem('demo.baseUrl');
+      if (byId('baseInput')) byId('baseInput').value = '';
+      updateCmds(); checkDashboard();
+    }
     function shellEscape(s){
       // naive escape for double quotes in JSON
       return String(s||'').replaceAll('"','\\"');
@@ -181,7 +205,7 @@
       return val;
     }
     function updateCmds(){
-      const base = window.location.origin;
+      const base = getBase();
       byId('baseUrl').textContent = base;
       const devId = byId('devId').value || '<UUID>';
       const coercedTime = coercePastIso(byId('time').value);
@@ -210,7 +234,7 @@
     // Kopier-/Aktualisieren-Buttons entfernt; Befehle aktualisieren automatisch
     async function execIngest(){
       updateCmds();
-      const base = window.location.origin;
+      const base = getBase();
       const devId = byId('devId').value;
       const time = coercePastIso(byId('time').value);
       const val = byId('val').value || '170.0';
@@ -227,7 +251,7 @@
     }
     async function execBilling(){
       updateCmds();
-      const base = window.location.origin;
+      const base = getBase();
       const cId = byId('contractId').value;
       const from = byId('from').value || '2025-09-01';
       const to = byId('to').value || '2025-09-30';
@@ -240,7 +264,7 @@
       }catch(e){ resEl.textContent = String(e); }
     }
     async function execList(){
-      const base = window.location.origin;
+      const base = getBase();
       const devId = byId('listDevId').value;
       const resEl = byId('listResult');
       resEl.style.display='block';
@@ -264,7 +288,7 @@
       if (infoEl) infoEl.textContent = info || '';
     }
     async function checkDashboard(){
-      const base = window.location.origin;
+      const base = getBase();
       byId('dashBase').textContent = base;
       // Health
       try{
@@ -289,6 +313,9 @@
       }catch(e){ setBadge('metricsBadge','ERROR'); }
     }
     // init
+    // init
+    const initialBase = loadBase();
+    if (byId('baseInput')) byId('baseInput').value = initialBase === window.location.origin ? '' : initialBase;
     updateCmds();
     checkDashboard();
     setInterval(checkDashboard, 15000);
