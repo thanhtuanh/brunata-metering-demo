@@ -31,6 +31,19 @@ Dokumentation
 - Migrations: ausschließlich via Flyway (`V*_*.sql`), keine nachträglichen Änderungen angewandter Migrationen
 - Observability: Actuator (Health, Metrics)
 
+### Architekturmodell: Modularer Monolith (Ready‑to‑Split)
+- Deployt wird ein einzelnes Spring‑Boot‑Artefakt (`app`).
+- Saubere Modulgrenzen (Maven): `api`, `services`, `persistence`, `domain`, `common`.
+- Vorteile: einfache Deployments, konsistente Transaktionen, schnelle lokale Entwicklung.
+- „Ready‑to‑Split“: Module sind so geschnitten, dass eine spätere Extraktion zu Microservices mit überschaubarem Aufwand möglich ist.
+
+### Microservices‑Upgrade (Skizze)
+- Boundaries & Contracts: OpenAPI/DTOs hart ziehen, keine Entity‑Sharing über Servicegrenzen.
+- Datenentkopplung: „Database per Service“ (Schemas/DBs), Outbox/CDC für Events.
+- Kommunikation: synchron (REST) und/oder asynchron (Kafka/RabbitMQ) mit Idempotenz.
+- Infrastruktur: API‑Gateway, Service‑Discovery, Tracing/Logging, Rate‑Limit/Circuit‑Breaker.
+- Delivery: eigenständige Container‑Images & Pipelines pro Service.
+
 ## Module
 - `common`: Fehlermodell (ApiError), `ValidationException`, `RestExceptionHandler`
 - `domain`: JPA-Entities (Device, MeterReading, Tariff, Contract, Invoice)
