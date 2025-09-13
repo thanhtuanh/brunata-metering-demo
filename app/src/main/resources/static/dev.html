@@ -94,6 +94,12 @@
                     |
                     v
         +-------------------------+
+        | Security FilterChain    |  — Optional: Basic Auth (toggle)
+        | (CORS, 401/permitAll)   |
+        +-----------+-------------+
+                    |
+                    v
+        +-------------------------+
         | api (REST Controller)   |  &lt;— OpenAPI
         +-----------+-------------+
                     |

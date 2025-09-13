@@ -42,6 +42,12 @@ Dokumentation
                     |
                     v
         +-------------------------+
+        | Security FilterChain    |  — Optional: Basic Auth (toggle)
+        | (CORS, 401 on demand)   |    oder permitAll (Demo)
+        +-----------+-------------+
+                    |
+                    v
+        +-------------------------+
         | api (REST Controller)   |  <— OpenAPI
         +-----------+-------------+
                     |
