@@ -1,6 +1,7 @@
 package com.brunata.meteringdemo.api;
 
 import com.brunata.meteringdemo.domain.MeterReading;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.brunata.meteringdemo.services.ReadingService;
 import com.brunata.meteringdemo.services.dto.ReadingDto;
 import jakarta.validation.Valid;
@@ -16,6 +17,7 @@ import java.util.UUID;
  * - Liste der Messwerte für ein Gerät liefern
  */
 @RestController
+@Tag(name = "Readings", description = "Messwerte erfassen und listen")
 @RequestMapping("/api/readings")
 public class ReadingController {
 

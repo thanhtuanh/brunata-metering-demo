@@ -2,6 +2,7 @@ package com.brunata.meteringdemo.api;
 
 import com.brunata.meteringdemo.domain.Invoice;
 import com.brunata.meteringdemo.services.BillingService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +18,7 @@ import java.util.UUID;
  * - Rückgabe der erzeugten Rechnung (Invoice) als JSON
  */
 @RestController
+@Tag(name = "Billing", description = "Abrechnung erstellen")
 @RequestMapping("/api/billing")
 public class BillingController {
 

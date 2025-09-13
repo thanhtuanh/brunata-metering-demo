@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -34,6 +35,7 @@ import java.util.UUID;
  *   damit Berechnungen im Billing-Service nachvollziehbar sind.
  */
 @RestController
+@Tag(name = "Demo", description = "Demo-Daten erzeugen")
 @RequestMapping("/api/demo")
 public class DemoSeedController {
 
