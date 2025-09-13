@@ -9,6 +9,7 @@ import com.brunata.meteringdemo.persistence.MeterReadingRepository;
 import com.brunata.meteringdemo.services.config.BillingProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -57,6 +58,12 @@ public class BillingService {
         // 2) Grundvalidierung Zeitraum
         if (to.isBefore(from)) throw new ValidationException("periodTo < periodFrom");
 
+        // 2a) Idempotenz: Existierende Rechnung für Zeitraum zurückgeben
+        var existing = invoiceRepo.findByContractIdAndPeriodFromAndPeriodTo(contractId, from, to);
+        if (existing.isPresent()) {
+            return existing.get();
+        }
+
         // 3) Zeitraum in UTC-Instants (inklusive from, inklusive to bis 23:59:59)
         var fromInstant = from.atStartOfDay().toInstant(ZoneOffset.UTC);
         var toInstant = to.plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC);
@@ -83,6 +90,12 @@ public class BillingService {
         invoice.setAmount(amount);
         invoice.setStatus("OPEN");
 
-        return invoiceRepo.save(invoice);
+        try {
+            return invoiceRepo.save(invoice);
+        } catch (DataIntegrityViolationException ex) {
+            // Race-Condition: paralleler Request hat Rechnung bereits gespeichert -> idempotent zurückgeben
+            return invoiceRepo.findByContractIdAndPeriodFromAndPeriodTo(contractId, from, to)
+                    .orElseThrow(() -> ex);
+        }
     }
 }
