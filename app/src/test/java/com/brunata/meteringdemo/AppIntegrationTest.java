@@ -18,10 +18,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 class AppIntegrationTest {
 
     @Container
-    static PostgreSQLContainer<?> pg = new PostgreSQLContainer<>("postgres:16")
-            .withDatabaseName("metering")
-            .withUsername("metering")
-            .withPassword("metering");
+    static PostgreSQLContainer<?> pg = new PostgreSQLContainer<>(
+            System.getenv().getOrDefault("TEST_POSTGRES_IMAGE", "postgres:16")
+    )
+            .withDatabaseName(System.getenv().getOrDefault("TEST_DB_NAME", "metering"))
+            .withUsername(System.getenv().getOrDefault("TEST_DB_USER", "metering"))
+            .withPassword(System.getenv().getOrDefault("TEST_DB_PASSWORD", "metering"));
 
     @DynamicPropertySource
     static void props(DynamicPropertyRegistry r){
@@ -40,4 +42,3 @@ class AppIntegrationTest {
         assertThat(readingRepo).isNotNull();
     }
 }
-

@@ -57,7 +57,7 @@ public class BillingService {
         if (to.isBefore(from)) throw new ValidationException("periodTo < periodFrom");
 
         // 2a) Idempotenz: Existierende Rechnung für Zeitraum zurückgeben
-        var existing = invoiceRepo.findByContractIdAndPeriodFromAndPeriodTo(contractId, from, to);
+        var existing = invoiceRepo.findByContract_IdAndPeriodFromAndPeriodTo(contractId, from, to);
         if (existing.isPresent()) {
             return existing.get();
         }
@@ -92,7 +92,7 @@ public class BillingService {
             return invoiceRepo.save(invoice);
         } catch (DataIntegrityViolationException ex) {
             // Race-Condition: paralleler Request hat Rechnung bereits gespeichert -> idempotent zurückgeben
-            return invoiceRepo.findByContractIdAndPeriodFromAndPeriodTo(contractId, from, to)
+            return invoiceRepo.findByContract_IdAndPeriodFromAndPeriodTo(contractId, from, to)
                     .orElseThrow(() -> ex);
         }
     }

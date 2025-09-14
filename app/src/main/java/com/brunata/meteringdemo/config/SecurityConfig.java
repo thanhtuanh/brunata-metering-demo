@@ -1,6 +1,7 @@
 package com.brunata.meteringdemo.config;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -21,6 +22,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * Optionale, minimale Basic-Auth. Aktivierung über Property:
@@ -34,6 +37,21 @@ import java.util.List;
 @EnableWebSecurity
 @ConditionalOnProperty(name = "demo.security.basic-enabled", havingValue = "true")
 public class SecurityConfig {
+
+    @Value("${demo.cors.allowed-origins:https://brunata-metering-demo.onrender.com,http://localhost:8080,http://localhost:8081,http://localhost:8082}")
+    private String corsAllowedOrigins;
+
+    @Value("${demo.cors.allowed-methods:GET,POST,PUT,DELETE,PATCH,OPTIONS,HEAD}")
+    private String corsAllowedMethods;
+
+    @Value("${demo.cors.allowed-headers:*}")
+    private String corsAllowedHeaders;
+
+    @Value("${demo.cors.allow-credentials:true}")
+    private boolean corsAllowCredentials;
+
+    @Value("${demo.cors.max-age:3600}")
+    private long corsMaxAgeSeconds;
 
     @Bean
     SecurityFilterChain security(HttpSecurity http) throws Exception {
@@ -81,16 +99,20 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
-        cfg.setAllowedOrigins(List.of(
-                "https://brunata-metering-demo.onrender.com",
-                "http://localhost:8080", "http://localhost:8081", "http://localhost:8082"
-        ));
-        cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"));
-        cfg.setAllowedHeaders(List.of("*"));
-        cfg.setAllowCredentials(true);
-        cfg.setMaxAge(3600L); // 1h: schnellere Preflights
+        cfg.setAllowedOrigins(splitAndTrim(corsAllowedOrigins));
+        cfg.setAllowedMethods(splitAndTrim(corsAllowedMethods));
+        cfg.setAllowedHeaders(splitAndTrim(corsAllowedHeaders));
+        cfg.setAllowCredentials(corsAllowCredentials);
+        cfg.setMaxAge(corsMaxAgeSeconds); // Preflight Cache
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", cfg);
         return source;
+    }
+
+    private List<String> splitAndTrim(String csv) {
+        return Arrays.stream(csv.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList());
     }
 }

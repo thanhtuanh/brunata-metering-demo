@@ -37,7 +37,7 @@ release.properties
 # Env / Secrets
 .env
 .env.*
+!.env.example
 
 # Docker
 docker-data/
-

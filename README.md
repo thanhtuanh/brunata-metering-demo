@@ -122,6 +122,11 @@ Dokumentation
   - Zusätzliche Indizes für Offline‑Checks: `app/.../db/migration/V7__device_indexes.sql`
 
 ## Schnellstart (lokal)
+Vorbereitungen (einmalig):
+```bash
+cp .env.example .env   # Werte bei Bedarf anpassen (DB, CORS, Integrationen)
+```
+
 ```bash
 # Einfache Skripte
 ./start-demo.sh        # startet DB, Flyway-Repair (Dev), Build & App

@@ -2,13 +2,13 @@ services:
   db:
     image: postgres:16
     environment:
-      POSTGRES_DB: metering
-      POSTGRES_USER: metering
-      POSTGRES_PASSWORD: metering
+      POSTGRES_DB: ${POSTGRES_DB:-metering}
+      POSTGRES_USER: ${POSTGRES_USER:-metering}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-metering}
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U metering -d metering"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-metering} -d ${POSTGRES_DB:-metering}"]
       interval: 5s
       timeout: 3s
       retries: 20

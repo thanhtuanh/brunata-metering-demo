@@ -7,14 +7,22 @@ set -euo pipefail
 # - Baut alle Module und startet die App im Hintergrund
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$SCRIPT_DIR"
 
 LOG_FILE=".demo-app.log"
 PID_FILE=".demo-app.pid"
 
-DB_URL="jdbc:postgresql://localhost:5432/metering"
-DB_USER="metering"
-DB_PASS="metering"
+# Optional: .env laden (falls vorhanden) und Variablen exportieren
+if [[ -f "$REPO_ROOT/.env" ]]; then
+  # shellcheck disable=SC1090
+  set -a; source "$REPO_ROOT/.env"; set +a
+fi
+
+# DB-Parameter aus ENV (mit Defaults)
+DB_URL="${DB_URL:-jdbc:postgresql://localhost:5432/metering}"
+DB_USER="${DB_USER:-metering}"
+DB_PASS="${DB_PASSWORD:-metering}"
 
 log() { printf "[start-demo] %s\n" "$*"; }
 

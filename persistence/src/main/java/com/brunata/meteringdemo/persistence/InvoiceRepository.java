@@ -15,5 +15,5 @@ public interface InvoiceRepository extends JpaRepository<Invoice, UUID> {
      * Liefert eine Rechnung für einen Vertrag und einen exakten Zeitraum, falls vorhanden.
      * Ermöglicht Idempotenz von Billing-Requests.
      */
-    Optional<Invoice> findByContractIdAndPeriodFromAndPeriodTo(UUID contractId, LocalDate from, LocalDate to);
+    Optional<Invoice> findByContract_IdAndPeriodFromAndPeriodTo(UUID contractId, LocalDate from, LocalDate to);
 }

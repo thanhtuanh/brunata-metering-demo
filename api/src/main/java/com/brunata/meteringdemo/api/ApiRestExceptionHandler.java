@@ -1,54 +1,41 @@
 package com.brunata.meteringdemo.api;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
-import com.brunata.meteringdemo.common.ValidationException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import com.brunata.meteringdemo.common.ApiError;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.time.Instant;
+import java.util.List;
+
 /**
  * API-spezifische Fehlerbehandlung für WebMVC-nahe Ausnahmen (Request-Parameter etc.).
- * Liegt im API-Modul, damit keine Servlet-Abhängigkeiten im common-Modul nötig sind.
+ * Vereinheitlicht das Fehlerformat auf ApiError.
  */
 @RestControllerAdvice
 public class ApiRestExceptionHandler {
 
-    /** Ungültige/fehlgeschlagene Typkonvertierung bei Request-Parametern (z. B. LocalDate) → 400. */
+    /** Ungültige/fehlgeschlagene Typkonvertierung bei Request-Parametern (z. B. LocalDate) → 400 (ApiError). */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ProblemDetail handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
-        var pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        pd.setTitle("BAD_REQUEST");
-        pd.setDetail(ex.getMessage());
-        return pd;
+    public ResponseEntity<ApiError> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        var err = new ApiError(
+                Instant.now(),
+                "BAD_REQUEST",
+                List.of(new ApiError.FieldError(ex.getName(), ex.getMessage()))
+        );
+        return ResponseEntity.badRequest().body(err);
     }
 
-    /** Fehlende Request-Parameter → 400. */
+    /** Fehlende Request-Parameter → 400 (ApiError). */
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ProblemDetail handleMissingParam(MissingServletRequestParameterException ex) {
-        var pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        pd.setTitle("BAD_REQUEST");
-        pd.setDetail(ex.getMessage());
-        return pd;
-    }
-
-    /** Domänenvalidierung (z. B. monotone Zählerstände) → 400. */
-    @ExceptionHandler(ValidationException.class)
-    public ProblemDetail handleDomainValidation(ValidationException ex) {
-        var pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        pd.setTitle("BAD_REQUEST");
-        pd.setDetail(ex.getMessage());
-        return pd;
-    }
-
-    /** Bean Validation (RequestBody DTOs) → 400. */
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ProblemDetail handleBeanValidation(MethodArgumentNotValidException ex) {
-        var pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        pd.setTitle("BAD_REQUEST");
-        pd.setDetail("Validation failure");
-        return pd;
+    public ResponseEntity<ApiError> handleMissingParam(MissingServletRequestParameterException ex) {
+        var err = new ApiError(
+                Instant.now(),
+                "BAD_REQUEST",
+                List.of(new ApiError.FieldError(ex.getParameterName(), ex.getMessage()))
+        );
+        return ResponseEntity.badRequest().body(err);
     }
 }
